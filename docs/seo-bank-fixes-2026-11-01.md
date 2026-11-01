@@ -41,3 +41,16 @@
 - npm run test:seo：无JS遍历所有sitemap URL，直接200、唯一H1、canonical精确等于loc、有效lastmod、面包屑；每类至少10个题目链接；Today FAQ逐字对应。
 - npm run test:browser：真实七轮评分、拒绝/跳题、暂停、复盘、分享、刷新、新局和手机流程。
 - 发布后用同一脚本对正式域重复验收，生产结果另附于下方。
+
+## 生产验收结果
+
+- 代码提交：a8f1320，已推送main并发布。
+- Worker版本：6234bc29-166c-4e1f-a4a8-9fb666ad644b。
+- 正式域运行seo-release-audit：122条sitemap URL全部直接200，每页一个H1、canonical精确等于sitemap loc、BreadcrumbList齐全，每条lastmod有效。
+- /about/、/privacy/：HEAD 200，无Location；无斜杠路径301到各自带斜杠地址。
+- prompts索引实测106个题目链接。
+- 分类实测：Music17、Games16、Language16、Geography19、Sports13、Science16。
+- Today无JS可见主体3275字符，六条展开FAQ与FAQPage逐条对应；日期归档链接与独立canonical保留。
+- 生产整局浏览器验收：真实七轮700分、拒绝、暂停恢复、跳题、复盘、分享、刷新、重玩、手机全部通过，无运行时错误。
+- 本地证据：output/seo-release-production.json、output/playwright/production-ui/report.json。
+- 本次没有对旧Daily日期快照做重新生成或覆盖，也未替换生产数据库。
