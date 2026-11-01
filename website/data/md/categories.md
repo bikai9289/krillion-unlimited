@@ -5,7 +5,7 @@ date: "2026-11-01"
 
 ## Find a subject to explore
 
-Our current starter bank has 28 prompts across a mix of subjects. These guides list the prompts actually present, explain common interpretation errors and connect you to the mixed Unlimited game. Category pages do not claim to provide subject-only play.
+Our current starter bank has 106 prompts across a mix of subjects. These guides list the prompts actually present, explain common interpretation errors and connect you to the mixed Unlimited game. Category pages do not claim to provide subject-only play.
 
 ### Geography
 
@@ -13,7 +13,7 @@ Oceans, continents, countries, Great Lakes and Pacific US states. Read geographi
 
 ### Sports
 
-The starter sports collection covers NBA league MVP winners. It is small and focused: it does not yet cover all sports, seasons or award types. [Explore sports prompts](/categories/sports/).
+The sports collection covers playing positions, tennis tournaments, swimming strokes, athletics events, gymnastics apparatus, fencing weapons and NBA league MVP winners. [Explore sports prompts](/categories/sports/).
 
 ### Science
 

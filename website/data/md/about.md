@@ -19,4 +19,4 @@ Daily has one saved result per browser and follows midnight in New York. Unlimit
 
 We are not affiliated with or endorsed by krillion.io. Our daily puzzle, accepted-answer lists and statistics are our own. There are no paid plans, sign-in accounts or multiplayer features.
 
-[Play](/?play=1#game) · [How to play](/how-to-play/) · [Privacy](/privacy)
+[Play](/?play=1#game) · [How to play](/how-to-play/) · [Privacy](/privacy/)

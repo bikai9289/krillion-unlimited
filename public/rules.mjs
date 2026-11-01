@@ -17,7 +17,7 @@ export const ROUND_MS = 25000;
 export const PREVIEW_MS = 3000;
 export const ROUNDS = 7;
 export const bandFor = score => [...BANDS].reverse().find(b => score >= b.min) || BANDS[0];
-export const normalize = value => String(value).normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '');
+export const normalize = value => String(value).normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/&/g, 'and').replace(/#/g, 'sharp').replace(/[^a-z0-9]/g, '');
 export function etDate(now = Date.now()) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(now));
 }

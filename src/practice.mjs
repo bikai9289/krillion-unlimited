@@ -1,3 +1,5 @@
+import expansion from './bank-expansion.json' with { type: 'json' };
+import { normalize } from '../public/rules.mjs';
 import { DEMO } from './demo.mjs';
 
 const extra = [
@@ -25,10 +27,17 @@ const extra = [
 ];
 const tiers = ['plankton', 'tooclever', 'schooler', 'rare', 'deepcut', 'krillion'];
 const aliases = { Metre: ['meter'], Caesium: ['cesium'], Purple: ['violet'], Superior: ['Lake Superior'], Michigan: ['Lake Michigan'], Huron: ['Lake Huron'], Erie: ['Lake Erie'], Ontario: ['Lake Ontario'], Cube: ['hexahedron'] };
-export const PRACTICE_BANK = [...DEMO.prompts, ...extra.map(([text, answers], i) => ({
+const originalBank = [...DEMO.prompts, ...extra.map(([text, answers], i) => ({
   id: `practice-${i + 1}`, text,
   answers: answers.map((answer, j) => ({ answer, tier: tiers[Math.round(j * 5 / (answers.length - 1))], aliases: text === 'Name an ocean' ? [`${answer} Ocean`] : aliases[answer] || [] })),
 }))];
+
+// Stable IDs and original entries remain intact; saved run snapshots keep their old answers.
+export const PRACTICE_BANK = [...originalBank, ...expansion.map(p => ({
+  id:p.id,category:p.category,text:p.text,updated:'2026-11-01',
+  answers:p.entries.map((entry,j)=>({answer:entry.answer,tier:tiers[Math.round(j*5/(p.entries.length-1))],aliases:[...new Map((entry.aliases||[]).filter(a=>normalize(a)!==normalize(entry.answer)).map(a=>[normalize(a),a])).values()]})),
+}))];
+
 
 export function practicePuzzle(base) {
   const prompts = [...PRACTICE_BANK];

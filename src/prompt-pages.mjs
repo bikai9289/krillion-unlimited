@@ -3,7 +3,7 @@ import { TIERS } from '../public/rules.mjs';
 import { categories, ORIGIN, escapeHTML as esc, siteNavigation, siteFooter, documentHead } from './site-content.mjs';
 
 export const promptSlug = p => p.text.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-export const promptPages = PRACTICE_BANK.map(prompt=>({prompt,path:`/prompts/${promptSlug(prompt)}/`,h1:prompt.text,title:`${prompt.text} — Answer Guide | Krillion Unlimited`,description:`Accepted answer scope, prepared rarity tiers and examples for “${prompt.text}” in our independent question bank.`}));
+export const promptPages = PRACTICE_BANK.map(prompt=>({prompt,modified:prompt.updated||'2026-11-01',path:`/prompts/${promptSlug(prompt)}/`,h1:prompt.text,title:`${prompt.text} — Answer Guide | Krillion Unlimited`,description:`Accepted answer scope, prepared rarity tiers and examples for “${prompt.text}” in our independent question bank.`}));
 export function categoryFor(prompt){
  const category=categories.find(c=>c.ids.includes(prompt.id));
  if(category)return category.name;

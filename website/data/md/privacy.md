@@ -23,4 +23,4 @@ Cloudflare hosts the game. Fonts may be requested from Google Fonts. No third-pa
 
 Completed game records remain in the service for history and ranking calculations. Rate-limit records are routinely pruned. You can clear local browser history, but this does not delete server game records. We do not collect payments or sell player records.
 
-[Back to the game](/) · [About](/about)
+[Back to the game](/) · [About](/about/)

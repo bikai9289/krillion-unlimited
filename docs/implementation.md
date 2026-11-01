@@ -59,3 +59,16 @@ Migration 0004_daily_archives.sql adds an independent immutable-by-application d
 Cron triggers 04:05 and 05:05 UTC cover New York midnight in DST and standard time. A normal daily request also creates the snapshot. Deploying the new Worker requires applying migration 0004 first. The scheduled handler performs no reference synchronization.
 
 Validation adds an automated three-day rollover test (including scheduled-only snapshot creation before API reads), immutable older answers after bank-row edits, canonical/index/sitemap checks, invalid/future/missing date cases and HEAD/redirect checks. Browser acceptance: npm run test:archives [production URL can be passed directly to the script]. Real three-day accumulation will happen over calendar time, not immediately after this release.
+
+
+## Canonical, freshness, Today FAQ and bank expansion
+
+All content canonical paths now use trailing slashes, including /about/ and /privacy/. Slashless aliases redirect to the slash URL. Next metadata, breadcrumbs, internal links and sitemap use the same path definitions. The production SEO audit compares the exact canonical string to every sitemap location and checks HEAD returns 200 without redirects for the two repaired routes.
+
+Every sitemap entry has lastmod. Root, today and the answer index follow the current New York edition date; immutable dated archives use their edition date. Informational pages use the editorial content date in src/content-updates.mjs (not the build timestamp). Prompt guides combine their editorial date with newer completed-run aggregate observation timestamps. No static page is assigned a fresh date just because a crawl/build ran.
+
+The Today hub has six visible expanded Q&As, identical FAQPage JSON-LD, over 1,500 visible characters, and keeps its own canonical and dated archive link. Daily reset, independent scope, Unlimited mismatch, spoilers, score handling and historical availability are explained.
+
+The bank now contains 106 stable unique prompts: 78 new curated entries plus the original 28. Categories contain Music 17, Games 16, Language 16, Geography 19, Sports 13 and Science 16. Nine other original mixed-subject prompts remain outside those six groupings. All prepared entries and aliases are checked for ambiguity and exact matching. Music sharp notation now normalizes C# to C sharp rather than C. Existing run snapshots and immutable daily archives are not rewritten by expansion.
+
+Validation: 23 Node tests; complete Next build/source audit; no-JS exact-canonical/lastmod/FAQ checks over the full sitemap; each category >=10 linked prompts; >=100 prompt index links; real seven-round browser regression. The general closed sets were curated by hand; open-ended topics remain limited prepared answer lists, not a claim of exhaustive world knowledge.

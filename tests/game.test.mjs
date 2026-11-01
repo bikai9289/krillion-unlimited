@@ -27,6 +27,7 @@ function database(){
       };
     },
     async first(){return db.prepare(sql).get()||null},
+    async all(){return {results:db.prepare(sql).all()}},
   });
   return{prepare,async batch(statements){db.exec('BEGIN');try{const r=[];for(const s of statements)r.push(await s.run());db.exec('COMMIT');return r}catch(e){db.exec('ROLLBACK');throw e}},close:()=>db.close()};
 }
@@ -276,4 +277,50 @@ test('three day rollover preserves dated snapshots, self canonicals and archive 
   const redirect=await worker.fetch(new Request('https://krillion-unlimited.app/answers/2026-11-01'),app.env,{});assert.equal(redirect.status,301);
   const head=await worker.fetch(new Request('https://krillion-unlimited.app/answers/2026-11-01/',{method:'HEAD'}),app.env,{});assert.equal(await head.text(),'');
  }finally{app.env.DB.close();t.mock.timers.reset()}
+});
+
+test('expanded bank has at least 100 unique prompts and every category has ten real entries',async()=>{
+ const {categories}=await import('../src/site-content.mjs');
+ const {promptPages}=await import('../src/prompt-pages.mjs');
+ assert.ok(PRACTICE_BANK.length>=100);
+ assert.equal(new Set(PRACTICE_BANK.map(p=>p.id)).size,PRACTICE_BANK.length);
+ assert.equal(new Set(PRACTICE_BANK.map(p=>normalize(p.text))).size,PRACTICE_BANK.length);
+ assert.equal(new Set(promptPages.map(p=>p.path)).size,PRACTICE_BANK.length);
+ for(const c of categories){assert.ok(c.ids.length>=10,c.slug);for(const id of c.ids)assert.ok(PRACTICE_BANK.some(p=>p.id===id));}
+ for(const p of PRACTICE_BANK){
+  assert.ok(p.answers.length>=2,p.id);assert.ok(p.answers.some(a=>a.tier==='krillion'),p.id);
+  const seen=new Map();
+  for(const answer of p.answers){assert.ok(TIERS[answer.tier]);for(const raw of [answer.answer,...answer.aliases||[]]){
+   const key=normalize(raw);assert.ok(key);assert.ok(!seen.has(key)||seen.get(key)===answer.answer,p.id+' alias collision');seen.set(key,answer.answer);
+   assert.equal(matchAnswer(raw,p.answers)?.answer,answer.answer,p.id+' / '+raw);
+  }}
+ }
+ const pitch=PRACTICE_BANK.find(p=>p.id==='music-expanded-16');
+ assert.equal(matchAnswer('C#',pitch.answers).answer,'C sharp');
+ assert.equal(matchAnswer('C',pitch.answers).answer,'C');
+});
+
+test('about/privacy use slash canonical policy and sitemap lastmod reflects daily versus editorial changes',async()=>{
+ const app=service();
+ for(const slug of ['about','privacy']){
+  const r=await worker.fetch(new Request('https://krillion-unlimited.app/'+slug),app.env,{});
+  assert.equal(r.status,301);assert.equal(r.headers.get('Location'),'https://krillion-unlimited.app/'+slug+'/');
+  assert.ok(sitemapPaths.includes('/'+slug+'/'));assert.ok(!sitemapPaths.includes('/'+slug));
+ }
+ const date=etDate();const response=await worker.fetch(new Request('https://krillion-unlimited.app/sitemap.xml'),app.env,{});const xml=await response.text();
+ const entries=[...xml.matchAll(/<url>(.*?)<\/url>/g)].map(m=>m[1]);
+ for(const entry of entries){assert.equal((entry.match(/<lastmod>/g)||[]).length,1);const value=entry.match(/<lastmod>(.*?)<\/lastmod>/)[1];assert.ok(Number.isFinite(Date.parse(value)));}
+ for(const path of ['/','/answers/','/answers/today/','/answers/'+date+'/'])assert.ok(xml.includes('<loc>https://krillion-unlimited.app'+path+'</loc><lastmod>'+date+'</lastmod>'));
+ const {lastModified}=await import('../src/content-updates.mjs');assert.equal(lastModified('/about/','2026-11-02',[]),'2026-11-01');
+ app.env.DB.close();
+});
+
+test('today FAQ schema exactly matches six visible expanded answers and retains the dated hub',async()=>{
+ const app=service();const response=await worker.fetch(new Request('https://krillion-unlimited.app/answers/today/'),app.env,{});const html=await response.text();
+ const schema=[...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m=>JSON.parse(m[1]));const faq=schema.find(s=>s['@type']==='FAQPage');
+ assert.equal(faq.mainEntity.length,6);assert.equal((html.match(/<details open class="home-faq">/g)||[]).length,6);
+ for(const item of faq.mainEntity){assert.ok(html.includes(item.name));assert.ok(html.includes(item.acceptedAnswer.text));}
+ assert.ok(html.includes('/answers/'+etDate()+'/'));
+ assert.ok(html.replace(/<[^>]*>/g,' ').length>1500);
+ app.env.DB.close();
 });

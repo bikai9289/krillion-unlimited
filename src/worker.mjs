@@ -1,3 +1,4 @@
+import {lastModified} from './content-updates.mjs';
 import {archivePage,todayHub,archiveIndex,validDate} from './answer-archives.mjs';
 import {promptPages,renderPromptPage,hydrateHomepage,breadcrumbs} from './prompt-pages.mjs';
 import {sitemapPaths} from './site-content.mjs';
@@ -225,7 +226,15 @@ export default {
         if(known==='/')return headers(new Response(request.method==='HEAD'?null:homePage('en',env),{headers:{'Content-Type':'text/html; charset=utf-8'}}));
       }
       if (url.pathname === '/robots.txt') return headers(new Response('User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: https://krillion-unlimited.app/sitemap.xml\n',{headers:{'Content-Type':'text/plain; charset=utf-8'}}));
-      if (url.pathname === '/sitemap.xml') return headers(new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+allPaths.map(p=>`<url><loc>${SITE.origin}${p}</loc></url>`).join('')+'</urlset>',{headers:{'Content-Type':'application/xml; charset=utf-8'}}));
+      if(url.pathname==='/sitemap.xml'){
+        const rows=(await env.DB.prepare(`SELECT json_extract(p.value,'$.id') AS id,MAX(a.created_at) AS updated
+          FROM answers a JOIN runs r ON r.id=a.run_id JOIN run_puzzles rp ON rp.run_id=r.id
+          JOIN json_each(rp.content,'$.prompts') p ON CAST(p.key AS INTEGER)=a.round
+          WHERE r.completed=1 GROUP BY json_extract(p.value,'$.id')`).all()).results;
+        const modified=new Map(rows.map(r=>[r.id,new Date(r.updated).toISOString()]));
+        const xml='<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+allPaths.map(p=>`<url><loc>${SITE.origin}${p}</loc><lastmod>${lastModified(p,etDate(),promptPages,modified)}</lastmod></url>`).join('')+'</urlset>';
+        return headers(new Response(request.method==='HEAD'?null:xml,{headers:{'Content-Type':'application/xml; charset=utf-8','Cache-Control':'no-store'}}));
+      }
       if (url.pathname === '/BingSiteAuth.xml' && env.BING_VERIFY) return headers(new Response(`<?xml version="1.0"?><users><user>${env.BING_VERIFY.replace(/[^a-zA-Z0-9]/g,'')}</user></users>`,{headers:{'Content-Type':'application/xml'}}));
       // R2 is private: expose only deliberately public, versioned assets.
       if (url.pathname.startsWith('/media/')) {

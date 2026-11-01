@@ -1,0 +1,2797 @@
+[
+  {
+    "id": "music-expanded-01",
+    "category": "music",
+    "text": "Name a fixed-do solfege syllable",
+    "entries": [
+      {
+        "answer": "Do",
+        "aliases": [
+          "doh"
+        ]
+      },
+      {
+        "answer": "Re",
+        "aliases": [
+          "ray"
+        ]
+      },
+      {
+        "answer": "Mi",
+        "aliases": []
+      },
+      {
+        "answer": "Fa",
+        "aliases": []
+      },
+      {
+        "answer": "Sol",
+        "aliases": [
+          "so",
+          "soh"
+        ]
+      },
+      {
+        "answer": "La",
+        "aliases": []
+      },
+      {
+        "answer": "Ti",
+        "aliases": [
+          "si"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "music-expanded-02",
+    "category": "music",
+    "text": "Name one of the seven diatonic modes",
+    "entries": [
+      {
+        "answer": "Ionian",
+        "aliases": []
+      },
+      {
+        "answer": "Dorian",
+        "aliases": []
+      },
+      {
+        "answer": "Phrygian",
+        "aliases": []
+      },
+      {
+        "answer": "Lydian",
+        "aliases": []
+      },
+      {
+        "answer": "Mixolydian",
+        "aliases": []
+      },
+      {
+        "answer": "Aeolian",
+        "aliases": []
+      },
+      {
+        "answer": "Locrian",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "music-expanded-03",
+    "category": "music",
+    "text": "Name a common Italian tempo marking",
+    "entries": [
+      {
+        "answer": "Allegro",
+        "aliases": []
+      },
+      {
+        "answer": "Andante",
+        "aliases": []
+      },
+      {
+        "answer": "Adagio",
+        "aliases": []
+      },
+      {
+        "answer": "Presto",
+        "aliases": []
+      },
+      {
+        "answer": "Largo",
+        "aliases": []
+      },
+      {
+        "answer": "Lento",
+        "aliases": []
+      },
+      {
+        "answer": "Moderato",
+        "aliases": []
+      },
+      {
+        "answer": "Vivace",
+        "aliases": []
+      },
+      {
+        "answer": "Grave",
+        "aliases": []
+      },
+      {
+        "answer": "Prestissimo",
+        "aliases": []
+      },
+      {
+        "answer": "Allegretto",
+        "aliases": []
+      },
+      {
+        "answer": "Andantino",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "music-expanded-04",
+    "category": "music",
+    "text": "Name an orchestral woodwind instrument",
+    "entries": [
+      {
+        "answer": "Flute",
+        "aliases": []
+      },
+      {
+        "answer": "Clarinet",
+        "aliases": []
+      },
+      {
+        "answer": "Oboe",
+        "aliases": []
+      },
+      {
+        "answer": "Bassoon",
+        "aliases": []
+      },
+      {
+        "answer": "Piccolo",
+        "aliases": []
+      },
+      {
+        "answer": "English horn",
+        "aliases": [
+          "cor anglais"
+        ]
+      },
+      {
+        "answer": "Bass clarinet",
+        "aliases": []
+      },
+      {
+        "answer": "Contrabassoon",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "music-expanded-05",
+    "category": "music",
+    "text": "Name a brass instrument played with a lip-vibrated mouthpiece",
+    "entries": [
+      {
+        "answer": "Trumpet",
+        "aliases": []
+      },
+      {
+        "answer": "Trombone",
+        "aliases": []
+      },
+      {
+        "answer": "Tuba",
+        "aliases": []
+      },
+      {
+        "answer": "French horn",
+        "aliases": [
+          "horn"
+        ]
+      },
+      {
+        "answer": "Cornet",
+        "aliases": []
+      },
+      {
+        "answer": "Flugelhorn",
+        "aliases": []
+      },
+      {
+        "answer": "Euphonium",
+        "aliases": []
+      },
+      {
+        "answer": "Tenor horn",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "music-expanded-06",
+    "category": "music",
+    "text": "Name one of the four main bowed string instruments in a modern orchestra",
+    "entries": [
+      {
+        "answer": "Violin",
+        "aliases": []
+      },
+      {
+        "answer": "Viola",
+        "aliases": []
+      },
+      {
+        "answer": "Cello",
+        "aliases": [
+          "violoncello"
+        ]
+      },
+      {
+        "answer": "Double bass",
+        "aliases": [
+          "contrabass",
+          "string bass"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "music-expanded-07",
+    "category": "music",
+    "text": "Name a musical instrument with a keyboard",
+    "entries": [
+      {
+        "answer": "Piano",
+        "aliases": []
+      },
+      {
+        "answer": "Organ",
+        "aliases": []
+      },
+      {
+        "answer": "Harpsichord",
+        "aliases": []
+      },
+      {
+        "answer": "Synthesizer",
+        "aliases": []
+      },
+      {
+        "answer": "Clavichord",
+        "aliases": []
+      },
+      {
+        "answer": "Celesta",
+        "aliases": []
+      },
+      {
+        "answer": "Accordion",
+        "aliases": []
+      },
+      {
+        "answer": "Melodica",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "music-expanded-08",
+    "category": "music",
+    "text": "Name a percussion instrument that can produce definite musical pitches",
+    "entries": [
+      {
+        "answer": "Xylophone",
+        "aliases": []
+      },
+      {
+        "answer": "Marimba",
+        "aliases": []
+      },
+      {
+        "answer": "Vibraphone",
+        "aliases": []
+      },
+      {
+        "answer": "Timpani",
+        "aliases": [
+          "kettledrums"
+        ]
+      },
+      {
+        "answer": "Glockenspiel",
+        "aliases": []
+      },
+      {
+        "answer": "Tubular bells",
+        "aliases": [
+          "chimes"
+        ]
+      },
+      {
+        "answer": "Celesta",
+        "aliases": []
+      },
+      {
+        "answer": "Steelpan",
+        "aliases": [
+          "steel drum"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "music-expanded-09",
+    "category": "music",
+    "text": "Name a dynamic marking from pianissimo to fortissimo",
+    "entries": [
+      {
+        "answer": "Pianissimo",
+        "aliases": [
+          "pp"
+        ]
+      },
+      {
+        "answer": "Piano",
+        "aliases": [
+          "p"
+        ]
+      },
+      {
+        "answer": "Mezzo piano",
+        "aliases": [
+          "mp"
+        ]
+      },
+      {
+        "answer": "Mezzo forte",
+        "aliases": [
+          "mf"
+        ]
+      },
+      {
+        "answer": "Forte",
+        "aliases": [
+          "f"
+        ]
+      },
+      {
+        "answer": "Fortissimo",
+        "aliases": [
+          "ff"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "music-expanded-10",
+    "category": "music",
+    "text": "Name a common written musical ornament",
+    "entries": [
+      {
+        "answer": "Trill",
+        "aliases": []
+      },
+      {
+        "answer": "Turn",
+        "aliases": []
+      },
+      {
+        "answer": "Mordent",
+        "aliases": []
+      },
+      {
+        "answer": "Appoggiatura",
+        "aliases": []
+      },
+      {
+        "answer": "Acciaccatura",
+        "aliases": []
+      },
+      {
+        "answer": "Inverted mordent",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "music-expanded-11",
+    "category": "music",
+    "text": "Name a member of the Beatles classic four-person lineup",
+    "entries": [
+      {
+        "answer": "John Lennon",
+        "aliases": [
+          "lennon"
+        ]
+      },
+      {
+        "answer": "Paul McCartney",
+        "aliases": [
+          "mccartney"
+        ]
+      },
+      {
+        "answer": "George Harrison",
+        "aliases": [
+          "harrison"
+        ]
+      },
+      {
+        "answer": "Ringo Starr",
+        "aliases": [
+          "ringo"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "music-expanded-12",
+    "category": "music",
+    "text": "Name a plucked string instrument",
+    "entries": [
+      {
+        "answer": "Guitar",
+        "aliases": []
+      },
+      {
+        "answer": "Harp",
+        "aliases": []
+      },
+      {
+        "answer": "Mandolin",
+        "aliases": []
+      },
+      {
+        "answer": "Banjo",
+        "aliases": []
+      },
+      {
+        "answer": "Ukulele",
+        "aliases": []
+      },
+      {
+        "answer": "Lute",
+        "aliases": []
+      },
+      {
+        "answer": "Sitar",
+        "aliases": []
+      },
+      {
+        "answer": "Koto",
+        "aliases": []
+      },
+      {
+        "answer": "Balalaika",
+        "aliases": []
+      },
+      {
+        "answer": "Bouzouki",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "music-expanded-13",
+    "category": "music",
+    "text": "Name one of the four main instrument families in a symphony orchestra",
+    "entries": [
+      {
+        "answer": "Strings",
+        "aliases": [
+          "string"
+        ]
+      },
+      {
+        "answer": "Woodwinds",
+        "aliases": [
+          "woodwind"
+        ]
+      },
+      {
+        "answer": "Brass",
+        "aliases": []
+      },
+      {
+        "answer": "Percussion",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "music-expanded-14",
+    "category": "music",
+    "text": "Name a standard note duration from a whole note through a sixty-fourth note",
+    "entries": [
+      {
+        "answer": "Whole note",
+        "aliases": [
+          "semibreve"
+        ]
+      },
+      {
+        "answer": "Half note",
+        "aliases": [
+          "minim"
+        ]
+      },
+      {
+        "answer": "Quarter note",
+        "aliases": [
+          "crotchet"
+        ]
+      },
+      {
+        "answer": "Eighth note",
+        "aliases": [
+          "quaver"
+        ]
+      },
+      {
+        "answer": "Sixteenth note",
+        "aliases": [
+          "semiquaver"
+        ]
+      },
+      {
+        "answer": "Thirty-second note",
+        "aliases": [
+          "demisemiquaver"
+        ]
+      },
+      {
+        "answer": "Sixty-fourth note",
+        "aliases": [
+          "hemidemisemiquaver"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "music-expanded-15",
+    "category": "music",
+    "text": "Name one of the four standard SATB choir voice parts",
+    "entries": [
+      {
+        "answer": "Soprano",
+        "aliases": []
+      },
+      {
+        "answer": "Alto",
+        "aliases": []
+      },
+      {
+        "answer": "Tenor",
+        "aliases": []
+      },
+      {
+        "answer": "Bass",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "music-expanded-16",
+    "category": "music",
+    "text": "Name one of the twelve pitch classes using a natural note or a sharp",
+    "entries": [
+      {
+        "answer": "C",
+        "aliases": []
+      },
+      {
+        "answer": "C sharp",
+        "aliases": [
+          "C#",
+          "D flat",
+          "Db"
+        ]
+      },
+      {
+        "answer": "D",
+        "aliases": []
+      },
+      {
+        "answer": "D sharp",
+        "aliases": [
+          "D#",
+          "E flat",
+          "Eb"
+        ]
+      },
+      {
+        "answer": "E",
+        "aliases": []
+      },
+      {
+        "answer": "F",
+        "aliases": []
+      },
+      {
+        "answer": "F sharp",
+        "aliases": [
+          "F#",
+          "G flat",
+          "Gb"
+        ]
+      },
+      {
+        "answer": "G",
+        "aliases": []
+      },
+      {
+        "answer": "G sharp",
+        "aliases": [
+          "G#",
+          "A flat",
+          "Ab"
+        ]
+      },
+      {
+        "answer": "A",
+        "aliases": []
+      },
+      {
+        "answer": "A sharp",
+        "aliases": [
+          "A#",
+          "B flat",
+          "Bb"
+        ]
+      },
+      {
+        "answer": "B",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "games-expanded-01",
+    "category": "games",
+    "text": "Name a rank in a standard 52-card deck",
+    "entries": [
+      {
+        "answer": "Ace",
+        "aliases": [
+          "A"
+        ]
+      },
+      {
+        "answer": "Two",
+        "aliases": [
+          "2"
+        ]
+      },
+      {
+        "answer": "Three",
+        "aliases": [
+          "3"
+        ]
+      },
+      {
+        "answer": "Four",
+        "aliases": [
+          "4"
+        ]
+      },
+      {
+        "answer": "Five",
+        "aliases": [
+          "5"
+        ]
+      },
+      {
+        "answer": "Six",
+        "aliases": [
+          "6"
+        ]
+      },
+      {
+        "answer": "Seven",
+        "aliases": [
+          "7"
+        ]
+      },
+      {
+        "answer": "Eight",
+        "aliases": [
+          "8"
+        ]
+      },
+      {
+        "answer": "Nine",
+        "aliases": [
+          "9"
+        ]
+      },
+      {
+        "answer": "Ten",
+        "aliases": [
+          "10"
+        ]
+      },
+      {
+        "answer": "Jack",
+        "aliases": [
+          "J"
+        ]
+      },
+      {
+        "answer": "Queen",
+        "aliases": [
+          "Q"
+        ]
+      },
+      {
+        "answer": "King",
+        "aliases": [
+          "K"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "games-expanded-02",
+    "category": "games",
+    "text": "Name a betting round in Texas Holdem poker",
+    "entries": [
+      {
+        "answer": "Preflop",
+        "aliases": [
+          "pre-flop"
+        ]
+      },
+      {
+        "answer": "Flop",
+        "aliases": []
+      },
+      {
+        "answer": "Turn",
+        "aliases": []
+      },
+      {
+        "answer": "River",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "games-expanded-03",
+    "category": "games",
+    "text": "Name a standard five-card poker hand category",
+    "entries": [
+      {
+        "answer": "High card",
+        "aliases": []
+      },
+      {
+        "answer": "One pair",
+        "aliases": [
+          "pair"
+        ]
+      },
+      {
+        "answer": "Two pair",
+        "aliases": []
+      },
+      {
+        "answer": "Three of a kind",
+        "aliases": [
+          "trips",
+          "three of a kind"
+        ]
+      },
+      {
+        "answer": "Straight",
+        "aliases": []
+      },
+      {
+        "answer": "Flush",
+        "aliases": []
+      },
+      {
+        "answer": "Full house",
+        "aliases": []
+      },
+      {
+        "answer": "Four of a kind",
+        "aliases": [
+          "quads"
+        ]
+      },
+      {
+        "answer": "Straight flush",
+        "aliases": [
+          "royal flush"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "games-expanded-04",
+    "category": "games",
+    "text": "Name a resource in the base game of Catan",
+    "entries": [
+      {
+        "answer": "Brick",
+        "aliases": [
+          "clay"
+        ]
+      },
+      {
+        "answer": "Lumber",
+        "aliases": [
+          "wood"
+        ]
+      },
+      {
+        "answer": "Wool",
+        "aliases": [
+          "sheep"
+        ]
+      },
+      {
+        "answer": "Grain",
+        "aliases": [
+          "wheat"
+        ]
+      },
+      {
+        "answer": "Ore",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "games-expanded-05",
+    "category": "games",
+    "text": "Name a development card type in the base game of Catan",
+    "entries": [
+      {
+        "answer": "Knight",
+        "aliases": []
+      },
+      {
+        "answer": "Victory point",
+        "aliases": [
+          "victory point card"
+        ]
+      },
+      {
+        "answer": "Road building",
+        "aliases": []
+      },
+      {
+        "answer": "Year of plenty",
+        "aliases": []
+      },
+      {
+        "answer": "Monopoly",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "games-expanded-06",
+    "category": "games",
+    "text": "Name one of the original six Cluedo murder weapons",
+    "entries": [
+      {
+        "answer": "Candlestick",
+        "aliases": []
+      },
+      {
+        "answer": "Dagger",
+        "aliases": [
+          "knife"
+        ]
+      },
+      {
+        "answer": "Lead pipe",
+        "aliases": []
+      },
+      {
+        "answer": "Revolver",
+        "aliases": []
+      },
+      {
+        "answer": "Rope",
+        "aliases": []
+      },
+      {
+        "answer": "Spanner",
+        "aliases": [
+          "wrench"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "games-expanded-07",
+    "category": "games",
+    "text": "Name one of the nine rooms on the classic Cluedo board",
+    "entries": [
+      {
+        "answer": "Kitchen",
+        "aliases": []
+      },
+      {
+        "answer": "Ballroom",
+        "aliases": []
+      },
+      {
+        "answer": "Conservatory",
+        "aliases": []
+      },
+      {
+        "answer": "Dining room",
+        "aliases": []
+      },
+      {
+        "answer": "Billiard room",
+        "aliases": []
+      },
+      {
+        "answer": "Library",
+        "aliases": []
+      },
+      {
+        "answer": "Lounge",
+        "aliases": []
+      },
+      {
+        "answer": "Hall",
+        "aliases": []
+      },
+      {
+        "answer": "Study",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "games-expanded-08",
+    "category": "games",
+    "text": "Name a piece a pawn can promote to in standard chess",
+    "entries": [
+      {
+        "answer": "Queen",
+        "aliases": []
+      },
+      {
+        "answer": "Rook",
+        "aliases": []
+      },
+      {
+        "answer": "Bishop",
+        "aliases": []
+      },
+      {
+        "answer": "Knight",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "games-expanded-09",
+    "category": "games",
+    "text": "Name a railroad on the classic US Monopoly board",
+    "entries": [
+      {
+        "answer": "Reading Railroad",
+        "aliases": [
+          "reading"
+        ]
+      },
+      {
+        "answer": "Pennsylvania Railroad",
+        "aliases": [
+          "pennsylvania"
+        ]
+      },
+      {
+        "answer": "B and O Railroad",
+        "aliases": [
+          "B&O",
+          "B&O Railroad"
+        ]
+      },
+      {
+        "answer": "Short Line",
+        "aliases": [
+          "shortline"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "games-expanded-10",
+    "category": "games",
+    "text": "Name a utility on the classic US Monopoly board",
+    "entries": [
+      {
+        "answer": "Electric Company",
+        "aliases": [
+          "electric"
+        ]
+      },
+      {
+        "answer": "Water Works",
+        "aliases": [
+          "waterworks"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "games-expanded-11",
+    "category": "games",
+    "text": "Name a numbered suit in a standard Mahjong tile set",
+    "entries": [
+      {
+        "answer": "Dots",
+        "aliases": [
+          "circles",
+          "coins"
+        ]
+      },
+      {
+        "answer": "Bamboo",
+        "aliases": [
+          "bams"
+        ]
+      },
+      {
+        "answer": "Characters",
+        "aliases": [
+          "cracks",
+          "myriads"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "games-expanded-12",
+    "category": "games",
+    "text": "Name a letter worth eight points in standard English Scrabble",
+    "entries": [
+      {
+        "answer": "J",
+        "aliases": []
+      },
+      {
+        "answer": "X",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "games-expanded-13",
+    "category": "games",
+    "text": "Name a scoring category in the upper section of Yahtzee",
+    "entries": [
+      {
+        "answer": "Ones",
+        "aliases": [
+          "aces",
+          "ones"
+        ]
+      },
+      {
+        "answer": "Twos",
+        "aliases": []
+      },
+      {
+        "answer": "Threes",
+        "aliases": []
+      },
+      {
+        "answer": "Fours",
+        "aliases": []
+      },
+      {
+        "answer": "Fives",
+        "aliases": []
+      },
+      {
+        "answer": "Sixes",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "games-expanded-14",
+    "category": "games",
+    "text": "Name a starting unpromoted piece type in standard Shogi",
+    "entries": [
+      {
+        "answer": "King",
+        "aliases": []
+      },
+      {
+        "answer": "Rook",
+        "aliases": []
+      },
+      {
+        "answer": "Bishop",
+        "aliases": []
+      },
+      {
+        "answer": "Gold general",
+        "aliases": [
+          "gold"
+        ]
+      },
+      {
+        "answer": "Silver general",
+        "aliases": [
+          "silver"
+        ]
+      },
+      {
+        "answer": "Knight",
+        "aliases": []
+      },
+      {
+        "answer": "Lance",
+        "aliases": []
+      },
+      {
+        "answer": "Pawn",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "language-expanded-01",
+    "category": "language",
+    "text": "Name an English personal subject pronoun",
+    "entries": [
+      {
+        "answer": "I",
+        "aliases": []
+      },
+      {
+        "answer": "You",
+        "aliases": []
+      },
+      {
+        "answer": "He",
+        "aliases": []
+      },
+      {
+        "answer": "She",
+        "aliases": []
+      },
+      {
+        "answer": "It",
+        "aliases": []
+      },
+      {
+        "answer": "We",
+        "aliases": []
+      },
+      {
+        "answer": "They",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "language-expanded-02",
+    "category": "language",
+    "text": "Name an English coordinating conjunction in the FANBOYS mnemonic",
+    "entries": [
+      {
+        "answer": "For",
+        "aliases": []
+      },
+      {
+        "answer": "And",
+        "aliases": []
+      },
+      {
+        "answer": "Nor",
+        "aliases": []
+      },
+      {
+        "answer": "But",
+        "aliases": []
+      },
+      {
+        "answer": "Or",
+        "aliases": []
+      },
+      {
+        "answer": "Yet",
+        "aliases": []
+      },
+      {
+        "answer": "So",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "language-expanded-03",
+    "category": "language",
+    "text": "Name a traditional part of speech in English grammar",
+    "entries": [
+      {
+        "answer": "Noun",
+        "aliases": []
+      },
+      {
+        "answer": "Pronoun",
+        "aliases": []
+      },
+      {
+        "answer": "Verb",
+        "aliases": []
+      },
+      {
+        "answer": "Adjective",
+        "aliases": []
+      },
+      {
+        "answer": "Adverb",
+        "aliases": []
+      },
+      {
+        "answer": "Preposition",
+        "aliases": []
+      },
+      {
+        "answer": "Conjunction",
+        "aliases": []
+      },
+      {
+        "answer": "Interjection",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "language-expanded-04",
+    "category": "language",
+    "text": "Name one of the six official languages of the United Nations",
+    "entries": [
+      {
+        "answer": "English",
+        "aliases": []
+      },
+      {
+        "answer": "French",
+        "aliases": []
+      },
+      {
+        "answer": "Spanish",
+        "aliases": []
+      },
+      {
+        "answer": "Arabic",
+        "aliases": []
+      },
+      {
+        "answer": "Chinese",
+        "aliases": []
+      },
+      {
+        "answer": "Russian",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "language-expanded-05",
+    "category": "language",
+    "text": "Name a vowel letter in the English alphabet excluding Y",
+    "entries": [
+      {
+        "answer": "A",
+        "aliases": []
+      },
+      {
+        "answer": "E",
+        "aliases": []
+      },
+      {
+        "answer": "I",
+        "aliases": []
+      },
+      {
+        "answer": "O",
+        "aliases": []
+      },
+      {
+        "answer": "U",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "language-expanded-06",
+    "category": "language",
+    "text": "Name a standard English form of the verb be",
+    "entries": [
+      {
+        "answer": "Be",
+        "aliases": []
+      },
+      {
+        "answer": "Am",
+        "aliases": []
+      },
+      {
+        "answer": "Is",
+        "aliases": []
+      },
+      {
+        "answer": "Are",
+        "aliases": []
+      },
+      {
+        "answer": "Was",
+        "aliases": []
+      },
+      {
+        "answer": "Were",
+        "aliases": []
+      },
+      {
+        "answer": "Being",
+        "aliases": []
+      },
+      {
+        "answer": "Been",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "language-expanded-07",
+    "category": "language",
+    "text": "Name a common English punctuation mark",
+    "entries": [
+      {
+        "answer": "Period",
+        "aliases": [
+          "full stop"
+        ]
+      },
+      {
+        "answer": "Comma",
+        "aliases": []
+      },
+      {
+        "answer": "Question mark",
+        "aliases": []
+      },
+      {
+        "answer": "Exclamation mark",
+        "aliases": [
+          "exclamation point"
+        ]
+      },
+      {
+        "answer": "Colon",
+        "aliases": []
+      },
+      {
+        "answer": "Semicolon",
+        "aliases": []
+      },
+      {
+        "answer": "Apostrophe",
+        "aliases": []
+      },
+      {
+        "answer": "Hyphen",
+        "aliases": []
+      },
+      {
+        "answer": "Dash",
+        "aliases": []
+      },
+      {
+        "answer": "Parenthesis",
+        "aliases": [
+          "parentheses"
+        ]
+      },
+      {
+        "answer": "Quotation mark",
+        "aliases": [
+          "quotation marks",
+          "inverted commas"
+        ]
+      },
+      {
+        "answer": "Ellipsis",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "language-expanded-08",
+    "category": "language",
+    "text": "Name one of the three standard grammatical persons",
+    "entries": [
+      {
+        "answer": "First person",
+        "aliases": [
+          "first"
+        ]
+      },
+      {
+        "answer": "Second person",
+        "aliases": [
+          "second"
+        ]
+      },
+      {
+        "answer": "Third person",
+        "aliases": [
+          "third"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "language-expanded-09",
+    "category": "language",
+    "text": "Name an English possessive determiner",
+    "entries": [
+      {
+        "answer": "My",
+        "aliases": []
+      },
+      {
+        "answer": "Your",
+        "aliases": []
+      },
+      {
+        "answer": "His",
+        "aliases": []
+      },
+      {
+        "answer": "Her",
+        "aliases": []
+      },
+      {
+        "answer": "Its",
+        "aliases": []
+      },
+      {
+        "answer": "Our",
+        "aliases": []
+      },
+      {
+        "answer": "Their",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "language-expanded-10",
+    "category": "language",
+    "text": "Name an English reflexive pronoun",
+    "entries": [
+      {
+        "answer": "Myself",
+        "aliases": []
+      },
+      {
+        "answer": "Yourself",
+        "aliases": []
+      },
+      {
+        "answer": "Himself",
+        "aliases": []
+      },
+      {
+        "answer": "Herself",
+        "aliases": []
+      },
+      {
+        "answer": "Itself",
+        "aliases": []
+      },
+      {
+        "answer": "Ourselves",
+        "aliases": []
+      },
+      {
+        "answer": "Yourselves",
+        "aliases": []
+      },
+      {
+        "answer": "Themselves",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "language-expanded-11",
+    "category": "language",
+    "text": "Name an English interrogative word starting with wh",
+    "entries": [
+      {
+        "answer": "Who",
+        "aliases": []
+      },
+      {
+        "answer": "What",
+        "aliases": []
+      },
+      {
+        "answer": "When",
+        "aliases": []
+      },
+      {
+        "answer": "Where",
+        "aliases": []
+      },
+      {
+        "answer": "Why",
+        "aliases": []
+      },
+      {
+        "answer": "Which",
+        "aliases": []
+      },
+      {
+        "answer": "Whom",
+        "aliases": []
+      },
+      {
+        "answer": "Whose",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "language-expanded-12",
+    "category": "language",
+    "text": "Name a traditional literary genre",
+    "entries": [
+      {
+        "answer": "Poetry",
+        "aliases": []
+      },
+      {
+        "answer": "Drama",
+        "aliases": []
+      },
+      {
+        "answer": "Novel",
+        "aliases": []
+      },
+      {
+        "answer": "Short story",
+        "aliases": []
+      },
+      {
+        "answer": "Epic",
+        "aliases": []
+      },
+      {
+        "answer": "Fable",
+        "aliases": []
+      },
+      {
+        "answer": "Tragedy",
+        "aliases": []
+      },
+      {
+        "answer": "Comedy",
+        "aliases": []
+      },
+      {
+        "answer": "Satire",
+        "aliases": []
+      },
+      {
+        "answer": "Memoir",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "language-expanded-13",
+    "category": "language",
+    "text": "Name a Romance language",
+    "entries": [
+      {
+        "answer": "Spanish",
+        "aliases": []
+      },
+      {
+        "answer": "French",
+        "aliases": []
+      },
+      {
+        "answer": "Italian",
+        "aliases": []
+      },
+      {
+        "answer": "Portuguese",
+        "aliases": []
+      },
+      {
+        "answer": "Romanian",
+        "aliases": []
+      },
+      {
+        "answer": "Catalan",
+        "aliases": []
+      },
+      {
+        "answer": "Galician",
+        "aliases": []
+      },
+      {
+        "answer": "Occitan",
+        "aliases": []
+      },
+      {
+        "answer": "Sardinian",
+        "aliases": []
+      },
+      {
+        "answer": "Romansh",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "language-expanded-14",
+    "category": "language",
+    "text": "Name a grammatical case in modern German",
+    "entries": [
+      {
+        "answer": "Nominative",
+        "aliases": [
+          "Nominativ"
+        ]
+      },
+      {
+        "answer": "Accusative",
+        "aliases": [
+          "Akkusativ"
+        ]
+      },
+      {
+        "answer": "Dative",
+        "aliases": [
+          "Dativ"
+        ]
+      },
+      {
+        "answer": "Genitive",
+        "aliases": [
+          "Genitiv"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "geography-expanded-01",
+    "category": "geography",
+    "text": "Name one of the four countries of the United Kingdom",
+    "entries": [
+      {
+        "answer": "England",
+        "aliases": []
+      },
+      {
+        "answer": "Scotland",
+        "aliases": []
+      },
+      {
+        "answer": "Wales",
+        "aliases": []
+      },
+      {
+        "answer": "Northern Ireland",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "geography-expanded-02",
+    "category": "geography",
+    "text": "Name a country with a land border with Germany",
+    "entries": [
+      {
+        "answer": "France",
+        "aliases": []
+      },
+      {
+        "answer": "Poland",
+        "aliases": []
+      },
+      {
+        "answer": "Austria",
+        "aliases": []
+      },
+      {
+        "answer": "Switzerland",
+        "aliases": []
+      },
+      {
+        "answer": "Czechia",
+        "aliases": [
+          "Czech Republic"
+        ]
+      },
+      {
+        "answer": "Netherlands",
+        "aliases": [
+          "the Netherlands"
+        ]
+      },
+      {
+        "answer": "Belgium",
+        "aliases": []
+      },
+      {
+        "answer": "Luxembourg",
+        "aliases": []
+      },
+      {
+        "answer": "Denmark",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "geography-expanded-03",
+    "category": "geography",
+    "text": "Name a country with a land border with Switzerland",
+    "entries": [
+      {
+        "answer": "France",
+        "aliases": []
+      },
+      {
+        "answer": "Germany",
+        "aliases": []
+      },
+      {
+        "answer": "Italy",
+        "aliases": []
+      },
+      {
+        "answer": "Austria",
+        "aliases": []
+      },
+      {
+        "answer": "Liechtenstein",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "geography-expanded-04",
+    "category": "geography",
+    "text": "Name a country on the South American mainland",
+    "entries": [
+      {
+        "answer": "Brazil",
+        "aliases": []
+      },
+      {
+        "answer": "Argentina",
+        "aliases": []
+      },
+      {
+        "answer": "Chile",
+        "aliases": []
+      },
+      {
+        "answer": "Peru",
+        "aliases": []
+      },
+      {
+        "answer": "Colombia",
+        "aliases": []
+      },
+      {
+        "answer": "Venezuela",
+        "aliases": []
+      },
+      {
+        "answer": "Ecuador",
+        "aliases": []
+      },
+      {
+        "answer": "Bolivia",
+        "aliases": []
+      },
+      {
+        "answer": "Paraguay",
+        "aliases": []
+      },
+      {
+        "answer": "Uruguay",
+        "aliases": []
+      },
+      {
+        "answer": "Guyana",
+        "aliases": []
+      },
+      {
+        "answer": "Suriname",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "geography-expanded-05",
+    "category": "geography",
+    "text": "Name one of the five Nordic sovereign countries",
+    "entries": [
+      {
+        "answer": "Sweden",
+        "aliases": []
+      },
+      {
+        "answer": "Norway",
+        "aliases": []
+      },
+      {
+        "answer": "Denmark",
+        "aliases": []
+      },
+      {
+        "answer": "Finland",
+        "aliases": []
+      },
+      {
+        "answer": "Iceland",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "geography-expanded-06",
+    "category": "geography",
+    "text": "Name an Australian state",
+    "entries": [
+      {
+        "answer": "New South Wales",
+        "aliases": [
+          "NSW"
+        ]
+      },
+      {
+        "answer": "Victoria",
+        "aliases": [
+          "VIC"
+        ]
+      },
+      {
+        "answer": "Queensland",
+        "aliases": [
+          "QLD"
+        ]
+      },
+      {
+        "answer": "South Australia",
+        "aliases": [
+          "SA"
+        ]
+      },
+      {
+        "answer": "Western Australia",
+        "aliases": [
+          "WA"
+        ]
+      },
+      {
+        "answer": "Tasmania",
+        "aliases": [
+          "TAS"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "geography-expanded-07",
+    "category": "geography",
+    "text": "Name one of the ten Canadian provinces",
+    "entries": [
+      {
+        "answer": "Ontario",
+        "aliases": []
+      },
+      {
+        "answer": "Quebec",
+        "aliases": [
+          "Québec"
+        ]
+      },
+      {
+        "answer": "British Columbia",
+        "aliases": [
+          "BC"
+        ]
+      },
+      {
+        "answer": "Alberta",
+        "aliases": []
+      },
+      {
+        "answer": "Manitoba",
+        "aliases": []
+      },
+      {
+        "answer": "Saskatchewan",
+        "aliases": []
+      },
+      {
+        "answer": "Nova Scotia",
+        "aliases": []
+      },
+      {
+        "answer": "New Brunswick",
+        "aliases": []
+      },
+      {
+        "answer": "Newfoundland and Labrador",
+        "aliases": [
+          "Newfoundland"
+        ]
+      },
+      {
+        "answer": "Prince Edward Island",
+        "aliases": [
+          "PEI"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "geography-expanded-08",
+    "category": "geography",
+    "text": "Name a US state that borders Mexico",
+    "entries": [
+      {
+        "answer": "California",
+        "aliases": []
+      },
+      {
+        "answer": "Arizona",
+        "aliases": []
+      },
+      {
+        "answer": "New Mexico",
+        "aliases": []
+      },
+      {
+        "answer": "Texas",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "geography-expanded-09",
+    "category": "geography",
+    "text": "Name one of the seven countries of Central America",
+    "entries": [
+      {
+        "answer": "Guatemala",
+        "aliases": []
+      },
+      {
+        "answer": "Belize",
+        "aliases": []
+      },
+      {
+        "answer": "Honduras",
+        "aliases": []
+      },
+      {
+        "answer": "El Salvador",
+        "aliases": []
+      },
+      {
+        "answer": "Nicaragua",
+        "aliases": []
+      },
+      {
+        "answer": "Costa Rica",
+        "aliases": []
+      },
+      {
+        "answer": "Panama",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "geography-expanded-10",
+    "category": "geography",
+    "text": "Name a sovereign country sharing the island of Hispaniola",
+    "entries": [
+      {
+        "answer": "Haiti",
+        "aliases": []
+      },
+      {
+        "answer": "Dominican Republic",
+        "aliases": [
+          "the Dominican Republic"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "geography-expanded-11",
+    "category": "geography",
+    "text": "Name a country with a land border with Italy",
+    "entries": [
+      {
+        "answer": "France",
+        "aliases": []
+      },
+      {
+        "answer": "Switzerland",
+        "aliases": []
+      },
+      {
+        "answer": "Austria",
+        "aliases": []
+      },
+      {
+        "answer": "Slovenia",
+        "aliases": []
+      },
+      {
+        "answer": "San Marino",
+        "aliases": []
+      },
+      {
+        "answer": "Vatican City",
+        "aliases": [
+          "Vatican",
+          "Holy See"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "geography-expanded-12",
+    "category": "geography",
+    "text": "Name a country with a land border with Mongolia",
+    "entries": [
+      {
+        "answer": "China",
+        "aliases": []
+      },
+      {
+        "answer": "Russia",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "sports-expanded-01",
+    "category": "sports",
+    "text": "Name one of the four tennis Grand Slam tournaments",
+    "entries": [
+      {
+        "answer": "Australian Open",
+        "aliases": []
+      },
+      {
+        "answer": "French Open",
+        "aliases": [
+          "Roland Garros"
+        ]
+      },
+      {
+        "answer": "Wimbledon",
+        "aliases": [
+          "The Championships"
+        ]
+      },
+      {
+        "answer": "US Open",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "sports-expanded-02",
+    "category": "sports",
+    "text": "Name one of the four competitive swimming strokes in an individual medley",
+    "entries": [
+      {
+        "answer": "Butterfly",
+        "aliases": []
+      },
+      {
+        "answer": "Backstroke",
+        "aliases": []
+      },
+      {
+        "answer": "Breaststroke",
+        "aliases": []
+      },
+      {
+        "answer": "Freestyle",
+        "aliases": [
+          "front crawl"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sports-expanded-03",
+    "category": "sports",
+    "text": "Name one of the ten events in the mens outdoor decathlon",
+    "entries": [
+      {
+        "answer": "100 metres",
+        "aliases": [
+          "100m",
+          "100 meters"
+        ]
+      },
+      {
+        "answer": "Long jump",
+        "aliases": []
+      },
+      {
+        "answer": "Shot put",
+        "aliases": []
+      },
+      {
+        "answer": "High jump",
+        "aliases": []
+      },
+      {
+        "answer": "400 metres",
+        "aliases": [
+          "400m",
+          "400 meters"
+        ]
+      },
+      {
+        "answer": "110 metres hurdles",
+        "aliases": [
+          "110m hurdles",
+          "110 meter hurdles"
+        ]
+      },
+      {
+        "answer": "Discus throw",
+        "aliases": [
+          "discus"
+        ]
+      },
+      {
+        "answer": "Pole vault",
+        "aliases": []
+      },
+      {
+        "answer": "Javelin throw",
+        "aliases": [
+          "javelin"
+        ]
+      },
+      {
+        "answer": "1500 metres",
+        "aliases": [
+          "1500m",
+          "1500 meters"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sports-expanded-04",
+    "category": "sports",
+    "text": "Name a position in the standard baseball defensive lineup",
+    "entries": [
+      {
+        "answer": "Pitcher",
+        "aliases": []
+      },
+      {
+        "answer": "Catcher",
+        "aliases": []
+      },
+      {
+        "answer": "First baseman",
+        "aliases": [
+          "first base"
+        ]
+      },
+      {
+        "answer": "Second baseman",
+        "aliases": [
+          "second base"
+        ]
+      },
+      {
+        "answer": "Third baseman",
+        "aliases": [
+          "third base"
+        ]
+      },
+      {
+        "answer": "Shortstop",
+        "aliases": []
+      },
+      {
+        "answer": "Left fielder",
+        "aliases": [
+          "left field"
+        ]
+      },
+      {
+        "answer": "Center fielder",
+        "aliases": [
+          "center field",
+          "centre fielder"
+        ]
+      },
+      {
+        "answer": "Right fielder",
+        "aliases": [
+          "right field"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sports-expanded-05",
+    "category": "sports",
+    "text": "Name a standard basketball playing position",
+    "entries": [
+      {
+        "answer": "Point guard",
+        "aliases": []
+      },
+      {
+        "answer": "Shooting guard",
+        "aliases": []
+      },
+      {
+        "answer": "Small forward",
+        "aliases": []
+      },
+      {
+        "answer": "Power forward",
+        "aliases": []
+      },
+      {
+        "answer": "Center",
+        "aliases": [
+          "centre"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sports-expanded-06",
+    "category": "sports",
+    "text": "Name a standard ice hockey playing position",
+    "entries": [
+      {
+        "answer": "Goaltender",
+        "aliases": [
+          "goalie",
+          "goalkeeper"
+        ]
+      },
+      {
+        "answer": "Center",
+        "aliases": [
+          "centre"
+        ]
+      },
+      {
+        "answer": "Left wing",
+        "aliases": []
+      },
+      {
+        "answer": "Right wing",
+        "aliases": []
+      },
+      {
+        "answer": "Defenseman",
+        "aliases": [
+          "defenceman",
+          "defender"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sports-expanded-07",
+    "category": "sports",
+    "text": "Name a piece of apparatus in mens artistic gymnastics",
+    "entries": [
+      {
+        "answer": "Floor exercise",
+        "aliases": [
+          "floor"
+        ]
+      },
+      {
+        "answer": "Pommel horse",
+        "aliases": []
+      },
+      {
+        "answer": "Still rings",
+        "aliases": [
+          "rings"
+        ]
+      },
+      {
+        "answer": "Vault",
+        "aliases": []
+      },
+      {
+        "answer": "Parallel bars",
+        "aliases": []
+      },
+      {
+        "answer": "Horizontal bar",
+        "aliases": [
+          "high bar"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sports-expanded-08",
+    "category": "sports",
+    "text": "Name a piece of apparatus in womens artistic gymnastics",
+    "entries": [
+      {
+        "answer": "Vault",
+        "aliases": []
+      },
+      {
+        "answer": "Uneven bars",
+        "aliases": []
+      },
+      {
+        "answer": "Balance beam",
+        "aliases": [
+          "beam"
+        ]
+      },
+      {
+        "answer": "Floor exercise",
+        "aliases": [
+          "floor"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sports-expanded-09",
+    "category": "sports",
+    "text": "Name a modern Olympic fencing weapon",
+    "entries": [
+      {
+        "answer": "Foil",
+        "aliases": []
+      },
+      {
+        "answer": "Epee",
+        "aliases": [
+          "épée"
+        ]
+      },
+      {
+        "answer": "Sabre",
+        "aliases": [
+          "saber"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sports-expanded-10",
+    "category": "sports",
+    "text": "Name a standard rugby union forward position",
+    "entries": [
+      {
+        "answer": "Prop",
+        "aliases": []
+      },
+      {
+        "answer": "Hooker",
+        "aliases": []
+      },
+      {
+        "answer": "Lock",
+        "aliases": [
+          "second row"
+        ]
+      },
+      {
+        "answer": "Flanker",
+        "aliases": []
+      },
+      {
+        "answer": "Number eight",
+        "aliases": [
+          "number 8",
+          "eight"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sports-expanded-11",
+    "category": "sports",
+    "text": "Name an Olympic singles badminton shot type",
+    "entries": [
+      {
+        "answer": "Serve",
+        "aliases": []
+      },
+      {
+        "answer": "Clear",
+        "aliases": []
+      },
+      {
+        "answer": "Drop",
+        "aliases": []
+      },
+      {
+        "answer": "Smash",
+        "aliases": []
+      },
+      {
+        "answer": "Drive",
+        "aliases": []
+      },
+      {
+        "answer": "Net shot",
+        "aliases": []
+      },
+      {
+        "answer": "Lift",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "sports-expanded-12",
+    "category": "sports",
+    "text": "Name a main association football playing position",
+    "entries": [
+      {
+        "answer": "Goalkeeper",
+        "aliases": [
+          "goalie",
+          "keeper"
+        ]
+      },
+      {
+        "answer": "Defender",
+        "aliases": []
+      },
+      {
+        "answer": "Midfielder",
+        "aliases": []
+      },
+      {
+        "answer": "Forward",
+        "aliases": [
+          "striker"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "science-expanded-01",
+    "category": "science",
+    "text": "Name one of the three main subatomic particles in an atom",
+    "entries": [
+      {
+        "answer": "Proton",
+        "aliases": []
+      },
+      {
+        "answer": "Neutron",
+        "aliases": []
+      },
+      {
+        "answer": "Electron",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "science-expanded-02",
+    "category": "science",
+    "text": "Name a base in DNA",
+    "entries": [
+      {
+        "answer": "Adenine",
+        "aliases": [
+          "A"
+        ]
+      },
+      {
+        "answer": "Thymine",
+        "aliases": [
+          "T"
+        ]
+      },
+      {
+        "answer": "Cytosine",
+        "aliases": [
+          "C"
+        ]
+      },
+      {
+        "answer": "Guanine",
+        "aliases": [
+          "G"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "science-expanded-03",
+    "category": "science",
+    "text": "Name a base in RNA",
+    "entries": [
+      {
+        "answer": "Adenine",
+        "aliases": [
+          "A"
+        ]
+      },
+      {
+        "answer": "Uracil",
+        "aliases": [
+          "U"
+        ]
+      },
+      {
+        "answer": "Cytosine",
+        "aliases": [
+          "C"
+        ]
+      },
+      {
+        "answer": "Guanine",
+        "aliases": [
+          "G"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "science-expanded-04",
+    "category": "science",
+    "text": "Name an alkaline earth metal",
+    "entries": [
+      {
+        "answer": "Beryllium",
+        "aliases": []
+      },
+      {
+        "answer": "Magnesium",
+        "aliases": []
+      },
+      {
+        "answer": "Calcium",
+        "aliases": []
+      },
+      {
+        "answer": "Strontium",
+        "aliases": []
+      },
+      {
+        "answer": "Barium",
+        "aliases": []
+      },
+      {
+        "answer": "Radium",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "science-expanded-05",
+    "category": "science",
+    "text": "Name a chemical element in the first period of the periodic table",
+    "entries": [
+      {
+        "answer": "Hydrogen",
+        "aliases": [
+          "H"
+        ]
+      },
+      {
+        "answer": "Helium",
+        "aliases": [
+          "He"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "science-expanded-06",
+    "category": "science",
+    "text": "Name a type of electromagnetic radiation in the standard spectrum",
+    "entries": [
+      {
+        "answer": "Radio waves",
+        "aliases": [
+          "radio"
+        ]
+      },
+      {
+        "answer": "Microwaves",
+        "aliases": [
+          "microwave"
+        ]
+      },
+      {
+        "answer": "Infrared",
+        "aliases": [
+          "IR"
+        ]
+      },
+      {
+        "answer": "Visible light",
+        "aliases": [
+          "visible"
+        ]
+      },
+      {
+        "answer": "Ultraviolet",
+        "aliases": [
+          "UV"
+        ]
+      },
+      {
+        "answer": "X-rays",
+        "aliases": [
+          "X ray",
+          "Xray"
+        ]
+      },
+      {
+        "answer": "Gamma rays",
+        "aliases": [
+          "gamma"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "science-expanded-07",
+    "category": "science",
+    "text": "Name one of the four fundamental interactions in physics",
+    "entries": [
+      {
+        "answer": "Gravity",
+        "aliases": [
+          "gravitation"
+        ]
+      },
+      {
+        "answer": "Electromagnetism",
+        "aliases": []
+      },
+      {
+        "answer": "Strong interaction",
+        "aliases": [
+          "strong force",
+          "strong nuclear force"
+        ]
+      },
+      {
+        "answer": "Weak interaction",
+        "aliases": [
+          "weak force",
+          "weak nuclear force"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "science-expanded-08",
+    "category": "science",
+    "text": "Name a main layer of the Earth in the three-layer compositional model",
+    "entries": [
+      {
+        "answer": "Crust",
+        "aliases": []
+      },
+      {
+        "answer": "Mantle",
+        "aliases": []
+      },
+      {
+        "answer": "Core",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "science-expanded-09",
+    "category": "science",
+    "text": "Name one of the five main layers of the atmosphere by temperature",
+    "entries": [
+      {
+        "answer": "Troposphere",
+        "aliases": []
+      },
+      {
+        "answer": "Stratosphere",
+        "aliases": []
+      },
+      {
+        "answer": "Mesosphere",
+        "aliases": []
+      },
+      {
+        "answer": "Thermosphere",
+        "aliases": []
+      },
+      {
+        "answer": "Exosphere",
+        "aliases": []
+      }
+    ]
+  },
+  {
+    "id": "science-expanded-10",
+    "category": "science",
+    "text": "Name a taxonomic rank from kingdom to species",
+    "entries": [
+      {
+        "answer": "Kingdom",
+        "aliases": []
+      },
+      {
+        "answer": "Phylum",
+        "aliases": []
+      },
+      {
+        "answer": "Class",
+        "aliases": []
+      },
+      {
+        "answer": "Order",
+        "aliases": []
+      },
+      {
+        "answer": "Family",
+        "aliases": []
+      },
+      {
+        "answer": "Genus",
+        "aliases": []
+      },
+      {
+        "answer": "Species",
+        "aliases": []
+      }
+    ]
+  }
+]

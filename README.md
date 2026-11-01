@@ -5,7 +5,7 @@ Independent rare-answer trivia game, developed from [OpenKrillion](https://githu
 This repository contains the approved deep-ocean interface integrated with Cloudflare Worker + D1 server-side gameplay: Unlimited and Daily modes, seven rounds, 25-second answer windows, curated rarity scoring, correction confirmation, refresh recovery, answer review and anonymous daily/weekly rankings.
 
 - Intended domain: `krillion-unlimited.app` (deployment pending).
-- Starter bank: 28 prompts; accepted-answer sets and rarity tiers are curated.
+- Question bank: 106 prompts; accepted-answer sets and rarity tiers are curated.
 - Current implementation and limits: [docs/implementation.md](docs/implementation.md).
 - Design explorations: `designs/`; the live application uses `src/game-page.mjs`, `public/game.css` and `public/game.mjs`.
 - Original license and notices are retained. Not affiliated with krillion.io.

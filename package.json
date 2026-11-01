@@ -18,7 +18,8 @@
     "test:art": "node scripts/art-audit.mjs",
     "build:assets": "node scripts/build.mjs",
     "test:site": "node scripts/site-audit.mjs",
-    "test:archives": "node scripts/archive-audit.mjs"
+    "test:archives": "node scripts/archive-audit.mjs",
+    "test:seo": "node scripts/seo-release-audit.mjs"
   },
   "devDependencies": {
     "wrangler": "4.151.1",
