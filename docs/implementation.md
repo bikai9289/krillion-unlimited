@@ -35,3 +35,14 @@ Official synchronization is disabled in runtime and the admin endpoint returns 4
 Production build command remains npm run build at the repository root. It builds Next, copies generated assets under public/site and public/_next, and preserves the original Worker/D1 deployment model. Do not deploy website/out alone. GSC_VERIFY is injected at request time into the exported HTML as well as the dynamic answer page. GSC verification/submission itself has not been completed in this session.
 
 User-provided SEO evidence and metric caveats are saved in docs/seo-evidence.md. Indexation timing is not guaranteed.
+
+
+## Live question SSR and prompt guides
+
+The homepage is now rendered at request time by Worker from the same puzzleFor(env, etDate()) source as /api/today. It includes all seven prompt texts with categories, six tiers, point/depth rules, and four expanded FAQs. It never caches an old daily HTML response: Cache-Control is no-store. The GitBase static shell is still built, while the root response adds the actual day-specific content server-side. No bot-specific content or client-only question placeholder is used.
+
+/prompts/ indexes 28 real bank entries. Each /prompts/<slug>/ page has one question H1, its own metadata/canonical and BreadcrumbList, answer scope, actual aliases and prepared tier distribution. Worker adds historical aggregate scored-round counts using completed runs joined to their saved prompt snapshots, matching both prompt id and text. Zero observations are shown as empty data, not made-up popularity. No player identifiers or raw submitted answer strings are published. Static fallback documents explain that live aggregates are supplied at request time.
+
+The sitemap now contains 40 URLs. Homepage schema contains VideoGame with the own origin, FAQPage matching the four visible expanded FAQs, and BreadcrumbList. Today's answers and prompt pages also include breadcrumbs. Category listings and the prompt index provide crawlable links to every guide.
+
+Validation: 18 Node tests; full Next export and source checks; all 40 URLs' H1/canonical checks; live seven-round browser flow; a separate JavaScript-disabled browser check via node scripts/no-js-audit.mjs. GSC submission and deployment are still separate operations.

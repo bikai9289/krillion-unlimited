@@ -180,8 +180,8 @@ test('sitemap covers dedicated canonical landing pages and redirects slash varia
  const app=service();
  const response=await worker.fetch(new Request('https://krillion-unlimited.app/sitemap.xml'),app.env,{});
  const xml=await response.text();
- assert.equal(sitemapPaths.length,11);
- assert.equal(new Set(sitemapPaths).size,11);
+ assert.equal(sitemapPaths.length,12);
+ assert.equal(new Set(sitemapPaths).size,12);
  for(const path of sitemapPaths)assert.ok(xml.includes(`<loc>https://krillion-unlimited.app${path}</loc>`));
  const redirect=await worker.fetch(new Request('https://krillion-unlimited.app/how-to-play'),app.env,{});
  assert.equal(redirect.status,301);
@@ -203,5 +203,39 @@ test('today answer HTML uses this service daily puzzle without altering locked r
  assert.equal(await head.text(),'');
  const started=(await app.call('/api/start',{ready:true})).body;
  assert.equal((await app.call('/api/review?run='+started.runId)).status,403);
+ app.env.DB.close();
+});
+
+test('homepage SSR contains actual seven daily prompts, categories, all tiers and matching FAQ schema',async()=>{
+ const app=service();const today=(await app.call('/api/today')).body;
+ const r=await worker.fetch(new Request('https://krillion-unlimited.app/'),app.env,{});const html=await r.text();
+ assert.equal(r.status,200);assert.equal(r.headers.get('Cache-Control'),'no-store');
+ assert.ok(!html.includes('Loading your first question'));
+ assert.equal((html.match(/<h1[ >]/g)||[]).length,1);
+ for(const q of today.prompts)assert.ok(html.includes(q.text));
+ assert.equal((html.match(/class="prompt-category"/g)||[]).length,7);
+ for(const tier of Object.values(TIERS))assert.ok(html.includes(tier.name));
+ const schema=[...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m=>JSON.parse(m[1]));
+ assert.ok(schema.some(s=>s['@type']==='VideoGame'&&s.url==='https://krillion-unlimited.app/'));
+ assert.ok(schema.some(s=>s['@type']==='BreadcrumbList'));
+ const faq=schema.find(s=>s['@type']==='FAQPage');assert.equal(faq.mainEntity.length,4);
+ for(const q of faq.mainEntity){assert.ok(html.includes(q.name));assert.ok(html.includes(q.acceptedAnswer.text));}
+ assert.equal((html.match(/<details open class="home-faq">/g)||[]).length,4);
+ app.env.DB.close();
+});
+
+test('prompt detail pages use bank scope and real completed-run aggregates',async()=>{
+ const app=service();const prompt=PRACTICE_BANK[0];
+ const path='/prompts/'+prompt.text.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'/';
+ const empty=await worker.fetch(new Request('https://krillion-unlimited.app'+path),app.env,{});
+ assert.equal(empty.status,200);assert.ok((await empty.text()).includes('No completed-run observations'));
+ const run=(await app.call('/api/start',{practice:true,ready:true})).body;
+ const snapshot={date:run.date,prompts:Array.from({length:7},()=>prompt)};
+ await app.env.DB.prepare('UPDATE run_puzzles SET content=? WHERE run_id=?').bind(JSON.stringify(snapshot),run.runId).run();
+ for(let i=0;i<7;i++){await app.call('/api/next',{runId:run.runId});await app.call('/api/answer',{runId:run.runId,round:i,answer:prompt.answers[0].answer,confirm:true});}
+ const populated=await worker.fetch(new Request('https://krillion-unlimited.app'+path),app.env,{});const html=await populated.text();
+ assert.ok(html.includes('7 scored rounds from completed dives'));
+ assert.ok(html.includes('not a unique-player count'));
+ assert.equal((html.match(/<h1[ >]/g)||[]).length,1);
  app.env.DB.close();
 });

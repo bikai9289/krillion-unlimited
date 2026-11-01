@@ -1,3 +1,4 @@
+import {promptPages,renderPromptPage,hydrateHomepage,breadcrumbs} from './prompt-pages.mjs';
 import {pages,sitemapPaths,dynamicTodayPage} from './site-content.mjs';
 import { SITE } from './config.mjs';
 import { documents } from './docs.mjs';
@@ -176,9 +177,26 @@ export default {
       const docs = documents();
       if (docs[url.pathname]) return headers(new Response(request.method==='HEAD'?null:docs[url.pathname],{headers:{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-cache'}}));
       const requested=url.pathname;
-      const known=sitemapPaths.find(p=>p.replace(/\/$/,'')===requested.replace(/\/$/,''));
+      const allPaths=[...sitemapPaths,...promptPages.map(p=>p.path)];
+      const known=allPaths.find(p=>p.replace(/\/$/,'')===requested.replace(/\/$/,''));
       if(known && requested!==known){url.pathname=known;return headers(Response.redirect(url.href,301));}
-      if(requested==='/answers/today/')return headers(new Response(request.method==='HEAD'?null:dynamicTodayPage(await puzzleFor(env,etDate()),env),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}}));
+      if(requested==='/'){
+        const puzzle=await puzzleFor(env,etDate());
+        const html=hydrateHomepage(homePage('en',env),puzzle);
+        return headers(new Response(request.method==='HEAD'?null:html,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}}));
+      }
+      const promptPage=promptPages.find(p=>p.path===requested);
+      if(promptPage){
+        const stats=(await env.DB.prepare(`SELECT a.tier,COUNT(*) AS attempts FROM answers a
+          JOIN runs r ON r.id=a.run_id JOIN run_puzzles rp ON rp.run_id=r.id
+          JOIN json_each(rp.content,'$.prompts') p ON CAST(p.key AS INTEGER)=a.round
+          WHERE r.completed=1 AND json_extract(p.value,'$.id')=? AND json_extract(p.value,'$.text')=? GROUP BY a.tier`).bind(promptPage.prompt.id,promptPage.prompt.text).all()).results;
+        return headers(new Response(request.method==='HEAD'?null:renderPromptPage(promptPage,stats,env),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}}));
+      }
+      if(requested==='/answers/today/'){
+        const html=dynamicTodayPage(await puzzleFor(env,etDate()),env).replace('</head>',breadcrumbs([['Home','/'],['Answers','/answers/'],['Today','/answers/today/']])+'</head>');
+        return headers(new Response(request.method==='HEAD'?null:html,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}}));
+      }
       if(known){
         const assetPath='/site'+(known==='/'?'/':known.replace(/\/$/,'')+'/')+'index.html';
         const exported=await env.ASSETS.fetch(new Request(new URL(assetPath,url),{method:request.method}));
@@ -188,7 +206,7 @@ export default {
         if(known==='/')return headers(new Response(request.method==='HEAD'?null:homePage('en',env),{headers:{'Content-Type':'text/html; charset=utf-8'}}));
       }
       if (url.pathname === '/robots.txt') return headers(new Response('User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: https://krillion-unlimited.app/sitemap.xml\n',{headers:{'Content-Type':'text/plain; charset=utf-8'}}));
-      if (url.pathname === '/sitemap.xml') return headers(new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+sitemapPaths.map(p=>`<url><loc>${SITE.origin}${p}</loc></url>`).join('')+'</urlset>',{headers:{'Content-Type':'application/xml; charset=utf-8'}}));
+      if (url.pathname === '/sitemap.xml') return headers(new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+allPaths.map(p=>`<url><loc>${SITE.origin}${p}</loc></url>`).join('')+'</urlset>',{headers:{'Content-Type':'application/xml; charset=utf-8'}}));
       if (url.pathname === '/BingSiteAuth.xml' && env.BING_VERIFY) return headers(new Response(`<?xml version="1.0"?><users><user>${env.BING_VERIFY.replace(/[^a-zA-Z0-9]/g,'')}</user></users>`,{headers:{'Content-Type':'application/xml'}}));
       // R2 is private: expose only deliberately public, versioned assets.
       if (url.pathname.startsWith('/media/')) {

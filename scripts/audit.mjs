@@ -1,3 +1,4 @@
+import {promptPages} from '../src/prompt-pages.mjs';
 import {sitemapPaths} from '../src/site-content.mjs';
 import { readFile, readdir } from 'node:fs/promises';
 import assert from 'node:assert/strict';
@@ -16,5 +17,5 @@ const report=JSON.parse(await readFile('docs/build-report.json','utf8'));assert.
 const config=JSON.parse(await readFile('wrangler.jsonc','utf8'));assert.equal(config.d1_databases[0].database_id,'00000000-0000-0000-0000-000000000000');assert.ok(!config.account_id);
 console.log(JSON.stringify({ok:true,seo:report,publicConfigSanitized:true}));
 
-for(const path of sitemapPaths.filter(p=>p!=='/answers/today/')){const file='public/site'+(path==='/'?'/':path.replace(/\/$/,'')+'/')+'index.html';const exported=await readFile(file,'utf8');assert.equal((exported.match(/<h1[ >]/g)||[]).length,1,path);assert.ok(exported.includes('https://krillion-unlimited.app'+path),path);assert.ok(!exported.includes('github.com'),path);assert.ok(!exported.includes('codeRepository'),path);}
+for(const path of [...sitemapPaths,...promptPages.map(p=>p.path)].filter(p=>p!=='/answers/today/')){const file='public/site'+(path==='/'?'/':path.replace(/\/$/,'')+'/')+'index.html';const exported=await readFile(file,'utf8');assert.equal((exported.match(/<h1[ >]/g)||[]).length,1,path);assert.ok(exported.includes('https://krillion-unlimited.app'+path),path);assert.ok(!exported.includes('github.com'),path);assert.ok(!exported.includes('codeRepository'),path);}
 console.log('GitBase static export canonical/H1/source-promotion checks passed');

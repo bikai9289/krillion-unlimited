@@ -14,9 +14,9 @@
     "zh"
   ],
   "framework": "GitBase-derived Next.js App Router",
-  "indexablePages": 11,
   "pages": [
     "/",
+    "/prompts/",
     "/krillion-game/",
     "/how-to-play/",
     "/answers/",
@@ -26,6 +26,35 @@
     "/categories/sports/",
     "/categories/science/",
     "/about",
-    "/privacy"
-  ]
+    "/privacy",
+    "/prompts/name-a-way-to-prepare-potatoes/",
+    "/prompts/name-an-animal-whose-name-is-exactly-four-letters-long/",
+    "/prompts/name-someone-who-has-won-an-nba-most-valuable-player-award/",
+    "/prompts/name-a-chemical-element-whose-symbol-is-one-letter/",
+    "/prompts/name-a-type-of-station/",
+    "/prompts/name-a-country-whose-english-name-ends-in-the-letter-e/",
+    "/prompts/name-a-superhero-team/",
+    "/prompts/name-a-planet-in-our-solar-system/",
+    "/prompts/name-a-month-with-exactly-30-days/",
+    "/prompts/name-a-standard-chess-piece/",
+    "/prompts/name-a-primary-or-secondary-color-in-the-traditional-ryb-model/",
+    "/prompts/name-a-polygon-with-three-to-ten-sides/",
+    "/prompts/name-an-ocean/",
+    "/prompts/name-a-day-of-the-week/",
+    "/prompts/name-one-of-the-five-great-lakes-of-north-america/",
+    "/prompts/name-a-us-state-that-borders-the-pacific-ocean/",
+    "/prompts/name-one-of-the-four-suits-in-a-standard-french-suited-card-deck/",
+    "/prompts/name-a-noble-gas-in-the-periodic-table/",
+    "/prompts/name-an-alkali-metal/",
+    "/prompts/name-a-symbol-used-as-a-roman-numeral/",
+    "/prompts/name-an-si-base-unit/",
+    "/prompts/name-a-continent-in-the-seven-continent-model/",
+    "/prompts/name-a-country-on-the-island-of-great-britain/",
+    "/prompts/name-one-of-the-four-main-compass-directions/",
+    "/prompts/name-one-of-the-five-platonic-solids/",
+    "/prompts/name-a-month-with-exactly-31-days/",
+    "/prompts/name-a-letter-in-the-greek-alphabet/",
+    "/prompts/name-one-of-the-six-strings-of-a-guitar-in-standard-tuning-using-its-note-letter/"
+  ],
+  "indexablePages": 40
 }
