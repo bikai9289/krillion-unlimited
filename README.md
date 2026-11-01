@@ -1,3 +1,43 @@
+# Krillion Unlimited
+
+Independent rare-answer trivia game, developed from [OpenKrillion](https://github.com/VulcanEon/openkrillion.com-service).
+
+This repository contains the approved deep-ocean interface integrated with Cloudflare Worker + D1 server-side gameplay: Unlimited and Daily modes, seven rounds, 25-second answer windows, curated rarity scoring, correction confirmation, refresh recovery, answer review and anonymous daily/weekly rankings.
+
+- Intended domain: `krillion-unlimited.app` (deployment pending).
+- Starter bank: 28 prompts; accepted-answer sets and rarity tiers are curated.
+- Current implementation and limits: [docs/implementation.md](docs/implementation.md).
+- Design explorations: `designs/`; the live application uses `src/game-page.mjs`, `public/game.css` and `public/game.mjs`.
+- Original license and notices are retained. Not affiliated with krillion.io.
+
+## Development
+
+Requires Node.js 24+.
+
+```sh
+npm ci
+npm run build
+npm run db:local
+npm run dev
+```
+
+Open http://localhost:3051. No cloud credentials are needed locally.
+
+```sh
+npm test
+npm run build
+npm run check
+npm run test:browser
+```
+
+Browser checks require Google Chrome. `node scripts/timeout-check.mjs` additionally checks a real 25-second expiry and Daily refresh recovery against the running local server.
+
+Production credentials, local database contents and node_modules are ignored. Configure your own Cloudflare resources before deploying.
+
+## Upstream documentation
+
+The following describes the original OpenKrillion release; where it differs, the implementation notes above describe this fork.
+
 # OpenKrillion 🦐
 
 An independent, open-source daily rare-answer trivia game. Play at **[openkrillion.com](https://openkrillion.com)**.

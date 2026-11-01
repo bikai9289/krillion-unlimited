@@ -4,6 +4,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
 import worker, { validateReference } from '../src/worker.mjs';
 import { DEMO } from '../src/demo.mjs';
+import { PRACTICE_BANK, dailyPuzzle } from '../src/practice.mjs';
 import { SITE } from '../src/config.mjs';
 import { documents, aiLinks } from '../src/docs.mjs';
 import { etDate, resetAt, normalize, matchAnswer, TIERS } from '../public/rules.mjs';
@@ -13,6 +14,7 @@ function database(){
   const db=new DatabaseSync(':memory:');
   db.exec(readFileSync(new URL('../migrations/0001_initial.sql',import.meta.url),'utf8'));
   db.exec(readFileSync(new URL('../migrations/0002_pause.sql',import.meta.url),'utf8'));
+  db.exec(readFileSync(new URL('../migrations/0003_practice_puzzles.sql',import.meta.url),'utf8'));
   const prepare=sql=>({
     bind(...args){
       const s=db.prepare(sql);
@@ -49,10 +51,11 @@ test('reference import validates date, question identity and tier whitelist',()=
 });
 test('seven rounds are scored on server; retries cannot duplicate points; other browsers cannot read the run',async()=>{
   const s=service();let{body:game}=await s.call('/api/start',{});const id=game.runId;
-  const correction=await s.call('/api/answer',{runId:id,round:0,answer:'mashed'});assert.equal(correction.body.correction,'Mashed potatoes');
+  const first=PRACTICE_BANK.find(p=>p.id===game.prompts[0].id);
+  const preview=await s.call('/api/answer',{runId:id,round:0,answer:'zzzzzzzzzz'});assert.equal(preview.body.rejected,true);
   const rejected=await s.call('/api/answer',{runId:id,round:0,answer:'zzzzzzzzzz'});assert.equal(rejected.body.rejected,true);
   for(let i=0;i<7;i++){
-    const answer=DEMO.prompts[i].answers.find(a=>a.tier==='krillion').answer;
+    const answer=PRACTICE_BANK.find(p=>p.id===game.prompts[i].id).answers.find(a=>a.tier==='krillion').answer;
     const result=await s.call('/api/answer',{runId:id,round:i,answer,confirm:true,score:99999});assert.equal(result.status,200);assert.equal(result.body.result.score,TIERS.krillion.score);game=result.body.state;
     const duplicate=await s.call('/api/answer',{runId:id,round:i,answer});assert.equal(duplicate.body.alreadyScored,true);assert.equal(duplicate.body.state.results.length,i+1);
     if(i<6){const n=await s.call('/api/next',{runId:id});assert.equal(n.body.round,i+1);}
@@ -90,10 +93,84 @@ test('five AI destinations share one localized prompt, canonical docs and native
   for(const lang of SITE.languages){const links=aiLinks(lang);assert.equal(links.length,5);const q=links.map(a=>new URL(a.href).searchParams.get('q'));assert.equal(new Set(q).size,1);assert.ok(q[0].includes(SITE.origin+'/llms-full.txt'));assert.ok(q[0].includes(lang==='zh'?'用中文回答':'answer in English'));assert.equal(new URL(links.find(a=>a.name==='Google AI Mode').href).searchParams.get('udm'),'50');const html=homePage(lang);assert.ok(html.includes('noopener noreferrer nofollow'));assert.ok(html.includes('original-footer'));assert.ok(html.includes('AI &amp; Agent Docs'));}
 });
 test('SSR SEO exposes an expandable guide, correct canonical and no crawler-specific cloaking',()=>{
-  const html=homePage();assert.ok(html.includes('<h1 aria-label="Krillion Game'));assert.ok(html.includes('<details id="guide"'));assert.ok(html.includes('https://openkrillion.com/assets/og.png'));
+  const html=homePage();assert.ok(html.includes('<h1 aria-label="Krillion Unlimited'));assert.ok(html.includes('<details id="guide"'));assert.ok(html.includes('https://krillion-unlimited.app/assets/og.png'));
   const text=html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'').replace(/<[^>]+>/g,' '),words=text.match(/[A-Za-z]+(?:[’'-][A-Za-z]+)*/g),density=words.filter(w=>w.toLowerCase()==='krillion').length/words.length;
   assert.ok(words.length>1500);assert.ok(density>.03);assert.ok(!html.includes('googlebot'));
 });
 test('public docs GET and HEAD are readable UTF-8 and not SPA HTML',async()=>{
-  const s=service();for(const path of Object.keys(documents()))for(const method of ['GET','HEAD']){const r=await worker.fetch(new Request('http://localhost:3051'+path,{method}),s.env,{});assert.equal(r.status,200);assert.match(r.headers.get('Content-Type'),/text\/plain; charset=utf-8/);const body=await r.text();if(method==='HEAD')assert.equal(body,'');else{assert.ok(body.startsWith('# OpenKrillion'));assert.ok(!body.includes('<!doctype html>'));}}s.env.DB.close();
+  const s=service();for(const path of Object.keys(documents()))for(const method of ['GET','HEAD']){const r=await worker.fetch(new Request('http://localhost:3051'+path,{method}),s.env,{});assert.equal(r.status,200);assert.match(r.headers.get('Content-Type'),/text\/plain; charset=utf-8/);const body=await r.text();if(method==='HEAD')assert.equal(body,'');else{assert.ok(body.startsWith('# '+SITE.name));assert.ok(!body.includes('<!doctype html>'));}}s.env.DB.close();
+});
+
+
+test('unlimited runs persist their unique prompts and hide answers', async()=>{
+  const app=service();
+  const a=await app.call('/api/start',{practice:true});
+  const b=await app.call('/api/start',{practice:true});
+  assert.equal(a.status,200);
+  assert.equal(b.status,200);
+  assert.notEqual(a.body.runId,b.body.runId);
+  assert.equal(a.body.prompts.length,7);
+  assert.equal(new Set(a.body.prompts.map(p=>p.id)).size,7);
+  assert.ok(a.body.prompts.every(p=>!('answers' in p)));
+  const restored=await app.call('/api/state?run='+a.body.runId);
+  assert.deepEqual(restored.body.prompts,a.body.prompts);
+  app.env.DB.close();
+});
+
+test('randomized practice scores and reviews the saved puzzle; boards exclude unfinished dives and keep one best per browser', async()=>{
+  const app=service();
+  const started=await app.call('/api/start',{practice:true});
+  const id=started.body.runId;
+  let game=started.body;
+  assert.equal((await app.call('/api/leaderboard')).body.entries.length,0);
+  for(let i=0;i<7;i++){
+    const prompt=PRACTICE_BANK.find(p=>p.id===game.prompts[i].id);
+    const answer=prompt.answers.find(a=>a.tier==='krillion').answer;
+    const response=await app.call('/api/answer',{runId:id,round:i,answer,confirm:true});
+    assert.equal(response.body.result.score,100);
+    game=response.body.state;
+    if(i<6)await app.call('/api/next',{runId:id});
+  }
+  assert.equal(game.score,700);
+  const review=await app.call('/api/review?run='+id);
+  assert.deepEqual(review.body.prompts.map(p=>p.id),game.prompts.map(p=>p.id));
+  const daily=(await app.call('/api/leaderboard?period=daily')).body;
+  assert.equal(daily.entries.length,1);
+  assert.equal(daily.entries[0].depth,7000);
+  assert.ok(!JSON.stringify(daily).includes(app.cookie().split('=')[1]));
+  assert.equal((await app.call('/api/leaderboard?period=monthly')).status,400);
+  assert.equal((await app.call('/api/leaderboard?period=weekly')).body.entries.length,1);
+  const second=await app.call('/api/start',{practice:true});
+  for(let i=0;i<7;i++){
+    const p=PRACTICE_BANK.find(p=>p.id===second.body.prompts[i].id);
+    await app.call('/api/answer',{runId:second.body.runId,round:i,answer:p.answers[0].answer,confirm:true});
+    if(i<6)await app.call('/api/next',{runId:second.body.runId});
+  }
+  const after=(await app.call('/api/leaderboard')).body;
+  assert.equal(after.entries.length,1);
+  assert.equal(after.entries[0].score,700);
+  app.env.DB.close();
+});
+
+test('daily starter puzzles are stable across isolates and vary with the date',()=>{
+  const a=dailyPuzzle({date:'2026-11-01'}), b=dailyPuzzle({date:'2026-11-01'}), c=dailyPuzzle({date:'2026-11-02'});
+  assert.deepEqual(a.prompts,b.prompts);
+  assert.notDeepEqual(a.prompts.map(p=>p.id),c.prompts.map(p=>p.id));
+});
+
+test('ready dives do not expire before explicit next; daily puzzles remain pinned to the run',async()=>{
+ const app=service();
+ const {body:g}=await app.call('/api/start',{ready:true});
+ assert.equal(g.roundStart,null);
+ const before=await app.call('/api/answer',{runId:g.runId,round:0,answer:'Earth'});
+ assert.equal(before.body.alreadyScored,true);
+ assert.equal(before.body.state.results.length,0);
+ const stored=await app.env.DB.prepare('SELECT content FROM run_puzzles WHERE run_id=?').bind(g.runId).first();
+ assert.equal(JSON.parse(stored.content).prompts[0].text,g.prompts[0].text);
+ await app.env.DB.prepare('UPDATE puzzles SET content=? WHERE date=?').bind(JSON.stringify({...DEMO,date:g.date}),g.date).run();
+ const restored=await app.call('/api/state?run='+g.runId);
+ assert.deepEqual(restored.body.prompts,g.prompts);
+ const next=await app.call('/api/next',{runId:g.runId});
+ assert.ok(next.body.roundStart>Date.now());
+ app.env.DB.close();
 });

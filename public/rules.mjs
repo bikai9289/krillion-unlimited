@@ -52,5 +52,5 @@ export function matchAnswer(input, answers) {
 }
 export function shareText(day, results) {
   const score = results.reduce((s, r) => s + r.score, 0);
-  return `OpenKrillion #${day} 🦐\n${score}/700 · ${score * 10}m\n${results.map(r => TIERS[r.tier]?.emoji || '⬛').join('')}\nhttps://openkrillion.com`;
+  return `Krillion Unlimited #${day} 🦐\n${score}/700 · ${score * 10}m\n${results.map(r => TIERS[r.tier]?.emoji || '⬛').join('')}\nhttps://krillion-unlimited.app`;
 }

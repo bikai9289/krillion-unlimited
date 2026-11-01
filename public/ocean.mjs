@@ -1,3 +1,4 @@
+import { reefCanvas } from './reef.mjs';
 import { easeInOut, easeOut } from './presentation.mjs';
 import { Seascape } from './seascape.mjs';
 const mix=(a,b,t)=>a+(b-a)*t;
@@ -9,19 +10,19 @@ function seed(n){const v=Math.sin(n*127.1+311.7)*43758.5453123;return v-Math.flo
 export class Ocean {
   constructor(canvas,mascot){
     this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});this.mascot=mascot;
-    this.scenery=new Seascape();this.phase='intro';this.depth=0;this.target=0;this.cameraDepth=-45;this.cameraTarget=-45;this.active=0;this.targetActive=0;this.time=0;this.particles=[];this.fx=null;
+    this.reef=reefCanvas();this.scenery=new Seascape();this.phase='intro';this.depth=0;this.target=0;this.cameraDepth=-45;this.cameraTarget=-45;this.active=0;this.targetActive=0;this.time=0;this.particles=[];this.fx=null;
     this.lowPower=false;this.reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;this.last=0;this.mx=.72;this.my=.66;
     this.sprites={};for(const name of ['krill','krill-gold','schooler','rare','deepcut','tooclever']){const img=new Image();img.src='/assets/'+name+'.svg';this.sprites[name]=img;}
     this.resize();this.observer=new ResizeObserver(()=>this.resize());this.observer.observe(canvas);requestAnimationFrame(t=>this.tick(t));
   }
-  layout(){const mobile=this.w<700,rail=this.w>=1200?180:0,bottom=mobile?50:90;return{mobile,rail,bottom,height:this.h-bottom,left:rail,width:this.w-rail*2,center:this.w/2-24};}
+  layout(){const mobile=this.w<700,rail=0,bottom=mobile?50:90;return{mobile,rail,bottom,height:this.h-bottom,left:rail,width:this.w-rail*2,center:this.w/2-24};}
   resize(){const previousHeight=this.h,previousWidth=this.w;this.w=this.canvas.clientWidth;this.h=this.canvas.clientHeight;this.canvas.width=Math.ceil(this.w/2);this.canvas.height=Math.ceil(this.h/2);this.ctx.setTransform(.5,0,0,.5,0,0);this.ctx.imageSmoothingEnabled=false;
-    if(previousHeight&&(previousHeight!==this.h||previousWidth!==this.w)&&['preview','answering'].includes(this.phase)){const l=this.layout(),cardHeight=document.getElementById('prompt-card')?.offsetHeight||180,dockTop=l.height-80;this.roundAnchor=Math.max(8,Math.min(l.mobile?175:210,(dockTop-cardHeight)/2));this.cameraDepth=this.cameraTarget=(this.roundBase||0)+(l.height/2-this.roundAnchor)/2;this.cameraJob=null;}
+    if(previousHeight&&(previousHeight!==this.h||previousWidth!==this.w)&&['preview','answering'].includes(this.phase)){const l=this.layout(),cardHeight=document.getElementById('prompt-card')?.offsetHeight||180,dockTop=l.height-80;this.roundAnchor=Math.max((document.querySelector('.hud')?.offsetHeight||64)+20,Math.min(l.mobile?175:210,(dockTop-cardHeight)/2));this.cameraDepth=this.cameraTarget=(this.roundBase||0)+(l.height/2-this.roundAnchor)/2;this.cameraJob=null;}
     this.draw();}
   moveCamera(to,duration=2200,ease=easeInOut){this.cameraTarget=to;this.cameraJob={from:this.cameraDepth,to,start:performance.now(),duration:this.reduced?1:duration,ease};}
   setPhase(phase){this.phase=phase;this.targetActive=phase==='intro'||phase==='done'?0:1;if(phase==='intro')this.moveCamera(-45,700);}
   setDepth(value){this.target=value;if(!['plunge','surface'].includes(this.phase)){this.depth=value;if(this.phase==='landed')this.moveCamera(value+30,500);}}
-  round(depth){this.target=depth;this.depth=depth;this.fx=null;this.roundBase=depth;const l=this.layout(),card=document.getElementById('prompt-card'),dockTop=l.height-80,cardHeight=card?.offsetHeight||180;this.roundAnchor=Math.max(8,Math.min(l.mobile?175:210,(dockTop-cardHeight)/2));this.moveCamera(depth+(l.height/2-this.roundAnchor)/2,2200);}
+  round(depth){this.target=depth;this.depth=depth;this.fx=null;this.roundBase=depth;const l=this.layout(),card=document.getElementById('prompt-card'),dockTop=l.height-80,cardHeight=card?.offsetHeight||180;this.roundAnchor=Math.max((document.querySelector('.hud')?.offsetHeight||64)+20,Math.min(l.mobile?175:210,(dockTop-cardHeight)/2));this.moveCamera(depth+(l.height/2-this.roundAnchor)/2,2200);}
   drop(oldDepth,result,progress){this.cameraJob=null;this.fx={tier:result.tier,progress,startDepth:oldDepth,resultDepth:oldDepth+result.score*10};const eased=result.tier==='plankton'?(1-Math.cos(Math.PI*progress))/2:easeInOut(progress);this.cameraDepth=mix(oldDepth+120,oldDepth+result.score*10+30,eased);this.cameraTarget=oldDepth+result.score*10+30;this.depth=result.tier==='krillion'?oldDepth:mix(oldDepth,oldDepth+result.score*10,eased);this.target=oldDepth+result.score*10;}
   typeAt(x,y,n=2){if(this.reduced)return;for(let i=0;i<n;i++)this.particles.push({x:x+(Math.random()-.5)*8,y:y+Math.random()*10,vx:(Math.random()-.5)*8,vy:-35-Math.random()*15,life:1,color:'#b2dce8',bubble:true,r:1+Math.random()*2});}
   burst(color='#4de3ff',n=30){if(this.reduced)return;const l=this.layout();for(let i=0;i<(this.lowPower?n/3:n);i++)this.particles.push({x:l.center,y:l.height/2-60,vx:(Math.random()-.5)*220,vy:(Math.random()-.5)*240-40,life:1,color});}
@@ -35,6 +36,12 @@ export class Ocean {
   bubble(x,y,r,alpha=.5){const c=this.ctx;c.strokeStyle=`rgba(173,218,238,${alpha})`;c.lineWidth=1;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.stroke();if(r>4){c.strokeStyle=`rgba(224,247,255,${alpha*.7})`;c.beginPath();c.arc(x-1,y-1,r-2,Math.PI,Math.PI*1.5);c.stroke();}}
   draw(){
     if(!this.ctx)return;const c=this.ctx,w=this.w,h=this.h,t=this.time,l=this.layout(),sea=l.height/2-this.cameraDepth*2,worldY=d=>l.height/2+(d-this.cameraDepth)*2;
+    if(this.phase==='intro'){
+      c.drawImage(this.reef,0,0,w,h);
+      for(let i=0;i<18;i++){const x=seed(i+90)*w, y=(seed(i+33)*h-t*(3+seed(i)*5)+h*100)%h;this.bubble(x,y,1+seed(i)*2,.25);}
+      const hero=document.getElementById('hero');if(hero){hero.style.top='';hero.style.opacity='1';}
+      return;
+    }
     c.fillStyle='#050a14';c.fillRect(0,0,w,h);
     if(sea>0){const sky=c.createLinearGradient(0,sea-620,0,sea);sky.addColorStop(0,'#81cbe8');sky.addColorStop(.6,'#a8dcef');sky.addColorStop(1,'#f1f9ff');c.fillStyle=sky;c.fillRect(0,0,w,sea+8);
       if(l.mobile){const sunX=w*.79,sunY=sea-151;c.fillStyle='#ffdf85';c.fillRect(sunX,sunY,38,38);c.fillStyle='#ffeaa7';c.fillRect(sunX-4,sunY+8,46,22);this.cloud(40,sea-147,6.5);this.cloud(210,sea-140,3.5);this.cloud(142,sea-105,4);this.cloud(-25,sea-100,3);this.cloud(335,sea-110,5);}

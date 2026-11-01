@@ -2,6 +2,7 @@ import { SITE } from './config.mjs';
 import { documents } from './docs.mjs';
 import { homePage, infoPage } from './html.mjs';
 import { DEMO } from './demo.mjs';
+import { practicePuzzle, dailyPuzzle } from './practice.mjs';
 import { TIERS, normalize, matchAnswer, etDate, resetAt, ROUND_MS, PREVIEW_MS } from '../public/rules.mjs';
 
 const cache = new Map();
@@ -23,8 +24,8 @@ export function validateReference(today, reveal, date) {
 }
 export async function syncPuzzle(env, date = etDate()) {
   const [t, r] = await Promise.all([
-    fetch('https://krillion.io/api/today', { signal: AbortSignal.timeout(12000), headers: { 'User-Agent': 'OpenKrillion/1.0 (+https://openkrillion.com/about)' } }),
-    fetch(`https://krillion.io/api/reveal?date=${date}`, { signal: AbortSignal.timeout(12000), headers: { 'User-Agent': 'OpenKrillion/1.0 (+https://openkrillion.com/about)' } }),
+    fetch('https://krillion.io/api/today', { signal: AbortSignal.timeout(12000), headers: { 'User-Agent': 'Krillion Unlimited/1.0 (+https://krillion-unlimited.app/about)' } }),
+    fetch(`https://krillion.io/api/reveal?date=${date}`, { signal: AbortSignal.timeout(12000), headers: { 'User-Agent': 'Krillion Unlimited/1.0 (+https://krillion-unlimited.app/about)' } }),
   ]);
   if (!t.ok || !r.ok) throw new Error('Reference service unavailable');
   const puzzle = validateReference(await t.json(), await r.json(), date);
@@ -40,7 +41,7 @@ async function puzzleFor(env, date) {
   if (env.REFERENCE_SYNC === 'true' && date === etDate()) {
     try { return await syncPuzzle(env, date); } catch (e) { console.warn('Puzzle synchronization failed:', e.message); }
   }
-  return { ...DEMO, date, dayNumber: Math.floor((Date.parse(date) - Date.parse('2026-07-16')) / 86400000) + 1, sample: true };
+  return dailyPuzzle({ ...DEMO, date, dayNumber: Math.floor((Date.parse(date) - Date.parse('2026-07-16')) / 86400000) + 1 });
 }
 async function saveSample(env, puzzle) {
   if (puzzle.sample) await env.DB.prepare('INSERT OR IGNORE INTO puzzles(date,day_number,source,content) VALUES(?,?,?,?)').bind(puzzle.date, puzzle.dayNumber, puzzle.source, JSON.stringify(puzzle)).run();
@@ -48,9 +49,13 @@ async function saveSample(env, puzzle) {
 function promptDTO(puzzle) {
   return { date: puzzle.date, dayNumber: puzzle.dayNumber, sample: !!puzzle.sample, source: puzzle.source, resetsAt: resetAt(puzzle.date), prompts: puzzle.prompts.map(({ id, text }) => ({ id, text })) };
 }
+async function puzzleForRun(env, run) {
+  const row = await env.DB.prepare('SELECT content FROM run_puzzles WHERE run_id=?').bind(run.id).first();
+  return row ? JSON.parse(row.content) : puzzleFor(env, run.date);
+}
 async function state(env, run) {
   const results = (await env.DB.prepare('SELECT round,raw_answer AS rawAnswer,answer,tier,score FROM answers WHERE run_id=? ORDER BY round').bind(run.id).all()).results;
-  const puzzle = await puzzleFor(env, run.date);
+  const puzzle = await puzzleForRun(env, run);
   return { ...promptDTO(puzzle), runId: run.id, mode: run.mode, round: run.next_round, roundStart: run.round_start, pausedAt: run.paused_at || null, serverNow: Date.now(), completed: !!run.completed, results, score: results.reduce((s, r) => s + r.score, 0) };
 }
 async function ownRun(env, id, player) {
@@ -67,6 +72,23 @@ async function limit(env, request, player) {
 }
 async function api(request, env, url) {
   const date = etDate(), path = url.pathname, player = playerId(request);
+  if (request.method === 'GET' && path === '/api/leaderboard') {
+    const period = url.searchParams.get('period') || 'daily';
+    if (!['daily', 'weekly'].includes(period)) return fail('Choose daily or weekly rankings.', 400);
+    const start = new Date(); start.setUTCHours(0, 0, 0, 0);
+    if (period === 'weekly') start.setUTCDate(start.getUTCDate() - (start.getUTCDay() + 6) % 7);
+    const end = start.getTime() + (period === 'weekly' ? 7 : 1) * 86400000;
+    const rows = (await env.DB.prepare(`WITH scored AS (
+      SELECT r.id, r.player, r.created_at, SUM(a.score) AS score
+      FROM runs r JOIN answers a ON a.run_id=r.id
+      WHERE r.completed=1 AND r.created_at>=? AND r.created_at<?
+      GROUP BY r.id HAVING COUNT(a.round)=7
+    ), ranked AS (
+      SELECT *, ROW_NUMBER() OVER (PARTITION BY player ORDER BY score DESC, created_at ASC, id ASC) AS best
+      FROM scored
+    ) SELECT id, score FROM ranked WHERE best=1 ORDER BY score DESC, created_at ASC, id ASC LIMIT 50`).bind(start.getTime(), end).all()).results;
+    return json({ period, startsAt: start.toISOString(), resetsAt: new Date(end).toISOString(), entries: rows.map(r => ({ name: `Diver ${r.id.slice(0, 6).toUpperCase()}`, score: r.score, depth: r.score * 10 })) });
+  }
   if (request.method === 'GET' && path === '/api/today') return json(promptDTO(await puzzleFor(env, date)));
   if (request.method === 'GET' && path === '/api/health') return json({ ok: true, name: SITE.name, database: !!(await env.DB.prepare('SELECT 1 AS ok').first()), storage: !!env.BUCKET });
   if (request.method === 'GET' && path === '/api/state') {
@@ -76,7 +98,7 @@ async function api(request, env, url) {
   if (request.method === 'GET' && path === '/api/review') {
     const run = await ownRun(env, url.searchParams.get('run'), player);
     if (!run?.completed) return fail('Finish your dive before opening the answer sheet.', 403);
-    const puzzle = await puzzleFor(env, run.date);
+    const puzzle = await puzzleForRun(env, run);
     const population = (await env.DB.prepare("SELECT r.id,SUM(a.score) AS score FROM runs r JOIN answers a ON a.run_id=r.id WHERE r.date=? AND r.mode='daily' AND r.completed=1 GROUP BY r.id").bind(run.date).all()).results;
     const own = await state(env, run);
     const others = population.filter(p => p.id !== run.id);
@@ -96,7 +118,11 @@ async function api(request, env, url) {
     let run = mode === 'daily' ? await env.DB.prepare("SELECT * FROM runs WHERE player=? AND date=? AND mode='daily'").bind(id, date).first() : null;
     if (!run) {
       const rid = crypto.randomUUID();
-      await env.DB.prepare('INSERT OR IGNORE INTO runs(id,player,date,mode,round_start,created_at) VALUES(?,?,?,?,?,?)').bind(rid, id, date, mode, Date.now() + PREVIEW_MS, Date.now()).run();
+      {
+        const selected = mode === 'practice' ? practicePuzzle(puzzle) : puzzle;
+        await env.DB.prepare('INSERT INTO run_puzzles(run_id,content) VALUES(?,?)').bind(rid, JSON.stringify(selected)).run();
+      }
+      await env.DB.prepare('INSERT OR IGNORE INTO runs(id,player,date,mode,round_start,created_at) VALUES(?,?,?,?,?,?)').bind(rid, id, date, mode, data.ready === true ? null : Date.now() + PREVIEW_MS, Date.now()).run();
       run = mode === 'daily' ? await env.DB.prepare("SELECT * FROM runs WHERE player=? AND date=? AND mode='daily'").bind(id,date).first() : await ownRun(env,rid,id);
     }
     return json(await state(env, run), 200, { 'Set-Cookie': `ok_player=${id}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000${url.protocol === 'https:' ? '; Secure' : ''}` });
@@ -124,7 +150,7 @@ async function api(request, env, url) {
     if (run.paused_at) return fail('Close the menu to resume your dive.',409);
     if (run.completed || run.round_start === null || data.round !== run.next_round) return json({ state: await state(env, run), alreadyScored: true });
     if (Date.now() < run.round_start && env.LOCAL_DEVELOPMENT !== 'true') return fail('The answer window has not opened yet.',409);
-    const puzzle = await puzzleFor(env,run.date), prompt = puzzle.prompts[run.next_round];
+    const puzzle = await puzzleForRun(env,run), prompt = puzzle.prompts[run.next_round];
     const raw = typeof data.answer === 'string' ? data.answer.trim().slice(0,256) : '';
     const late = Date.now() > run.round_start + ROUND_MS;
     // A small network grace period applies only to the client's timed submission.
@@ -162,14 +188,14 @@ export default {
   async fetch(request,env,ctx) {
     const url = new URL(request.url);
     try {
-      if (url.hostname === 'www.openkrillion.com') { url.hostname='openkrillion.com'; return Response.redirect(url.href,301); }
+      if (url.hostname === 'www.krillion-unlimited.app') { url.hostname='krillion-unlimited.app'; return Response.redirect(url.href,301); }
       if (url.pathname.startsWith('/api/')) return headers(await api(request,env,url));
       if (!['GET','HEAD'].includes(request.method)) return headers(fail('Method not allowed.',405));
       const docs = documents();
       if (docs[url.pathname]) return headers(new Response(request.method==='HEAD'?null:docs[url.pathname],{headers:{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-cache'}}));
       if (url.pathname === '/') return headers(new Response(request.method==='HEAD'?null:homePage(url.searchParams.get('lang') === 'zh' ? 'zh':'en',env),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-cache'}}));
       if (['/privacy','/about'].includes(url.pathname)) return headers(new Response(request.method==='HEAD'?null:infoPage(url.pathname),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'public, max-age=300'}}));
-      if (url.pathname === '/robots.txt') return headers(new Response('User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: https://openkrillion.com/sitemap.xml\n',{headers:{'Content-Type':'text/plain; charset=utf-8'}}));
+      if (url.pathname === '/robots.txt') return headers(new Response('User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: https://krillion-unlimited.app/sitemap.xml\n',{headers:{'Content-Type':'text/plain; charset=utf-8'}}));
       if (url.pathname === '/sitemap.xml') return headers(new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+['/','/about','/privacy'].map(p=>`<url><loc>${SITE.origin}${p}</loc></url>`).join('')+'</urlset>',{headers:{'Content-Type':'application/xml; charset=utf-8'}}));
       if (url.pathname === '/BingSiteAuth.xml' && env.BING_VERIFY) return headers(new Response(`<?xml version="1.0"?><users><user>${env.BING_VERIFY.replace(/[^a-zA-Z0-9]/g,'')}</user></users>`,{headers:{'Content-Type':'application/xml'}}));
       // R2 is private: expose only deliberately public, versioned assets.

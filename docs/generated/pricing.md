@@ -1,6 +1,6 @@
-# OpenKrillion pricing
+# Krillion Unlimited pricing
 
-Canonical: https://openkrillion.com/pricing.md
+Canonical: https://krillion-unlimited.app/pricing.md
 
 Current implemented daily and practice games: 0 USD. Free to play.
 
@@ -10,5 +10,5 @@ The game has 7 prompts, 25 seconds per answer and a maximum of 700 points. Each 
 
 No payment is collected, so no payment refund workflow exists. External AI providers may have their own plans and policies. Third-party hosting costs are not player prices.
 
-Privacy: https://openkrillion.com/privacy
-Source: https://github.com/VulcanEon/openkrillion.com-service
+Privacy: https://krillion-unlimited.app/privacy
+Source: https://github.com/bikai9289/krillion-unlimited

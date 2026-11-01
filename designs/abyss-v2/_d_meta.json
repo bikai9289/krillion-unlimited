@@ -1,0 +1,22 @@
+{
+  "type": "design",
+  "designSystems": [],
+  "primaryDesignSystem": null,
+  "assets": {
+    "Into the uncommon — Concept 02": {
+      "versions": [
+        {
+          "path": "index.html",
+          "createdAt": "2026-11-01T08:42:25.357Z",
+          "status": "needs-review",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          }
+        }
+      ]
+    }
+  },
+  "createdAt": "2026-11-01T08:42:25.358Z",
+  "updatedAt": "2026-11-01T08:42:25.358Z"
+}

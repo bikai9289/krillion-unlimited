@@ -4,7 +4,7 @@ import { homePage } from '../src/html.mjs';
 import { documents, aiLinks } from '../src/docs.mjs';
 
 const html=homePage();
-assert.ok(html.includes('https://openkrillion.com/'));
+assert.ok(html.includes('https://krillion-unlimited.app/'));
 assert.ok(html.includes('AI &amp; Agent Docs'));
 for(const path of Object.keys(documents()))assert.ok(html.includes(`href="${path}"`));
 for(const lang of ['en','zh'])assert.equal(aiLinks(lang).length,5);
