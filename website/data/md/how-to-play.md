@@ -18,7 +18,7 @@ Click Play Now on the homepage cover. The same-origin game opens the real seven-
 | Deep Cut | 85 | 850m |
 | One in a Krillion | 100 | 1,000m |
 
-A pass, unaccepted timed submission or blank timeout scores zero. Tiers are curated, not measured crowd frequency.
+A pass, unaccepted timed submission or blank timeout scores zero. Tiers use observed frequency when the 100-browser sample threshold is met; otherwise they are labelled editorial fallback.
 
 ## A Krillion game about the answer beyond your first thought
 
