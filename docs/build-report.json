@@ -22,6 +22,7 @@
     "/answers/",
     "/answers/today/",
     "/categories/",
+    "/categories/calendar/",
     "/categories/music/",
     "/categories/language/",
     "/categories/games/",
@@ -137,5 +138,5 @@
     "/prompts/name-one-of-the-five-main-layers-of-the-atmosphere-by-temperature/",
     "/prompts/name-a-taxonomic-rank-from-kingdom-to-species/"
   ],
-  "indexablePages": 121
+  "indexablePages": 122
 }

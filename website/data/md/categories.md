@@ -37,3 +37,8 @@ Greek letter names and Roman numeral symbols use different answer formats. Revie
 ### Games
 
 Chess piece types and playing-card suits reward careful reading. A king fits the chess prompt, while hearts is a card suit. [Explore games prompts](/categories/games/).
+
+
+### Calendar
+
+Weekdays and month lengths have exact conditions. Three existing prompts cover days of the week, 30-day months and 31-day months. [Explore Calendar prompts](/categories/calendar/).

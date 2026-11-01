@@ -33,11 +33,14 @@ const originalBank = [...DEMO.prompts, ...extra.map(([text, answers], i) => ({
 }))];
 
 // Stable IDs and original entries remain intact; saved run snapshots keep their old answers.
-export const PRACTICE_BANK = [...originalBank, ...expansion.map(p => ({
+const mixedBank = [...originalBank, ...expansion.map(p => ({
   id:p.id,category:p.category,text:p.text,updated:'2026-11-01',
   answers:p.entries.map((entry,j)=>({answer:entry.answer,tier:tiers[Math.round(j*5/(p.entries.length-1))],aliases:[...new Map((entry.aliases||[]).filter(a=>normalize(a)!==normalize(entry.answer)).map(a=>[normalize(a),a])).values()]})),
 }))];
 
+
+const additionalCategories={p1:'food',p2:'animals',p5:'general-knowledge',p7:'entertainment','practice-2':'calendar','practice-4':'art','practice-5':'mathematics','practice-7':'calendar','practice-19':'calendar'};
+export const PRACTICE_BANK=mixedBank.map(p=>({...p,category:p.category||additionalCategories[p.id]||p.category}));
 
 export function practicePuzzle(base) {
   const prompts = [...PRACTICE_BANK];

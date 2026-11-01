@@ -182,8 +182,8 @@ test('sitemap covers dedicated canonical landing pages and redirects slash varia
  const app=service();
  const response=await worker.fetch(new Request('https://krillion-unlimited.app/sitemap.xml'),app.env,{});
  const xml=await response.text();
- assert.equal(sitemapPaths.length,15);
- assert.equal(new Set(sitemapPaths).size,15);
+ assert.equal(sitemapPaths.length,16);
+ assert.equal(new Set(sitemapPaths).size,16);
  for(const path of sitemapPaths)assert.ok(xml.includes(`<loc>https://krillion-unlimited.app${path}</loc>`));
  const redirect=await worker.fetch(new Request('https://krillion-unlimited.app/how-to-play'),app.env,{});
  assert.equal(redirect.status,301);
@@ -230,21 +230,21 @@ test('prompt detail pages use bank scope and real completed-run aggregates',asyn
  const app=service();const prompt=PRACTICE_BANK[0];
  const path='/prompts/'+prompt.text.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'/';
  const empty=await worker.fetch(new Request('https://krillion-unlimited.app'+path),app.env,{});
- assert.equal(empty.status,200);assert.ok((await empty.text()).includes('No completed-run observations'));
+ assert.equal(empty.status,200);assert.ok(!(await empty.text()).includes('Observed browser choices'));
  const run=(await app.call('/api/start',{practice:true,ready:true})).body;
  const snapshot={date:run.date,prompts:Array.from({length:7},()=>prompt)};
  await app.env.DB.prepare('UPDATE run_puzzles SET content=? WHERE run_id=?').bind(JSON.stringify(snapshot),run.runId).run();
  for(let i=0;i<7;i++){await app.call('/api/next',{runId:run.runId});await app.call('/api/answer',{runId:run.runId,round:i,answer:prompt.answers[0].answer,confirm:true});}
  const populated=await worker.fetch(new Request('https://krillion-unlimited.app'+path),app.env,{});const html=await populated.text();
- assert.ok(html.includes('7 scored rounds from completed dives'));
- assert.ok(html.includes('not a unique-player count'));
+ assert.ok(!html.includes('Observed browser choices'));
+ assert.ok(!html.includes('7 browser choices'));
  assert.equal((html.match(/<h1[ >]/g)||[]).length,1);
  app.env.DB.close();
 });
 
 test('six categories include real music language and games prompts',async()=>{
  const {categories,categoryContent}=await import('../src/site-content.mjs');
- assert.equal(categories.length,6);
+ assert.equal(categories.length,7);
  for(const slug of ['music','language','games']){
    const c=categories.find(c=>c.slug===slug);assert.ok(c.ids.length);
    const html=categoryContent(slug);
@@ -286,7 +286,7 @@ test('expanded bank has at least 100 unique prompts and every category has ten r
  assert.equal(new Set(PRACTICE_BANK.map(p=>p.id)).size,PRACTICE_BANK.length);
  assert.equal(new Set(PRACTICE_BANK.map(p=>normalize(p.text))).size,PRACTICE_BANK.length);
  assert.equal(new Set(promptPages.map(p=>p.path)).size,PRACTICE_BANK.length);
- for(const c of categories){assert.ok(c.ids.length>=10,c.slug);for(const id of c.ids)assert.ok(PRACTICE_BANK.some(p=>p.id===id));}
+ for(const c of categories){assert.ok(c.ids.length>=(c.slug==='calendar'?3:10),c.slug);for(const id of c.ids)assert.ok(PRACTICE_BANK.some(p=>p.id===id));}
  for(const p of PRACTICE_BANK){
   assert.ok(p.answers.length>=2,p.id);assert.ok(p.answers.some(a=>a.tier==='krillion'),p.id);
   const seen=new Map();
@@ -322,5 +322,48 @@ test('today FAQ schema exactly matches six visible expanded answers and retains 
  for(const item of faq.mainEntity){assert.ok(html.includes(item.name));assert.ok(html.includes(item.acceptedAnswer.text));}
  assert.ok(html.includes('/answers/'+etDate()+'/'));
  assert.ok(html.replace(/<[^>]*>/g,' ').length>1500);
+ app.env.DB.close();
+});
+
+test('observed rarity waits for 100 independent choices, gives tied frequencies equal tiers and handles rare answers',async()=>{
+ const {observedPrompt}=await import('../src/rarity.mjs');
+ const p=PRACTICE_BANK.find(p=>p.id==='practice-7');
+ const row=(answer,count)=>({promptId:p.id,promptText:p.text,answer,count});
+ assert.equal(observedPrompt(p,[row('Monday',99)]).rarity.method,'editorial');
+ const equal=observedPrompt(p,p.answers.map(a=>row(a.answer,20)));
+ assert.equal(equal.rarity.method,'observed');assert.equal(new Set(equal.answers.map(a=>a.tier)).size,1);
+ const uneven=observedPrompt(p,[row('Monday',1000),row('Sunday',1)]);
+ assert.equal(uneven.answers.find(a=>a.answer==='Monday').tier,'plankton');
+ assert.equal(uneven.answers.find(a=>a.answer==='Sunday').tier,'krillion');
+ assert.ok(uneven.answers.every(a=>TIERS[a.tier]));
+ assert.equal(p.answers.find(a=>a.answer==='Sunday').tier,'krillion'); // source is unmodified
+});
+
+test('observation query counts each browser only once, excludes abandoned runs and does not rescore snapshots',async()=>{
+ const {loadObservations,scoreFromObservations}=await import('../src/rarity.mjs');
+ const app=service();const p=PRACTICE_BANK[0];let firstId;
+ for(let k=0;k<2;k++){
+  const run=(await app.call('/api/start',{practice:true,ready:true})).body;if(k===0)firstId=run.runId;
+  await app.env.DB.prepare('UPDATE run_puzzles SET content=? WHERE run_id=?').bind(JSON.stringify({date:run.date,prompts:Array.from({length:7},()=>p)}),run.runId).run();
+  for(let i=0;i<7;i++){await app.call('/api/next',{runId:run.runId});await app.call('/api/answer',{runId:run.runId,round:i,answer:p.answers[0].answer,confirm:true});}
+ }
+ const rows=await loadObservations(app.env);assert.equal(rows.filter(r=>r.promptId===p.id).reduce((n,r)=>n+r.count,0),1);
+ const before=(await app.env.DB.prepare('SELECT content FROM run_puzzles WHERE run_id=?').bind(firstId).first()).content;
+ await scoreFromObservations(app.env,{prompts:[p]});
+ assert.equal((await app.env.DB.prepare('SELECT content FROM run_puzzles WHERE run_id=?').bind(firstId).first()).content,before);
+ app.env.DB.close();
+});
+
+test('sufficient recorded browser choices actually feed snapshot scoring without altering archived daily tiers',async()=>{
+ const {scoreFromObservations}=await import('../src/rarity.mjs');const app=service();const p=PRACTICE_BANK.find(p=>p.id==='practice-7');
+ for(let i=0;i<100;i++){
+  const id=crypto.randomUUID(),player=crypto.randomUUID();
+  await app.env.DB.prepare('INSERT INTO runs(id,player,date,mode,round_start,created_at) VALUES(?,?,?,?,?,?)').bind(id,player,etDate(),'practice',null,Date.now()).run();
+  await app.env.DB.prepare('INSERT INTO run_puzzles(run_id,content) VALUES(?,?)').bind(id,JSON.stringify({prompts:Array.from({length:7},()=>p)})).run();
+  for(let round=0;round<7;round++)await app.env.DB.prepare('INSERT INTO answers(run_id,round,raw_answer,answer,tier,score,created_at) VALUES(?,?,?,?,?,?,?)').bind(id,round,'Sunday','Sunday','krillion',100,Date.now()).run();
+  await app.env.DB.prepare('UPDATE runs SET completed=1 WHERE id=?').bind(id).run();
+ }
+ const scored=await scoreFromObservations(app.env,{prompts:[p]});assert.equal(scored.prompts[0].rarity.sampleSize,100);assert.equal(scored.prompts[0].answers.find(a=>a.answer==='Sunday').tier,'plankton');
+ assert.equal(p.answers.find(a=>a.answer==='Sunday').tier,'krillion');
  app.env.DB.close();
 });

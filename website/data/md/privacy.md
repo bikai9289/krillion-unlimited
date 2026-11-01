@@ -24,3 +24,8 @@ Cloudflare hosts the game. Fonts may be requested from Google Fonts. No third-pa
 Completed game records remain in the service for history and ranking calculations. Rate-limit records are routinely pruned. You can clear local browser history, but this does not delete server game records. We do not collect payments or sell player records.
 
 [Back to the game](/) · [About](/about/)
+
+
+## Aggregate answer frequencies
+
+The server can count accepted choices from completed dives over 30 days, using at most one choice per random browser identifier and prompt. This derives aggregates from the game records already described above. Observed scoring and public aggregate figures require at least 100 browser choices. Repeated practice by one browser does not count as extra independent choices. No raw browser identifier is published.

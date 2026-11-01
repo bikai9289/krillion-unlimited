@@ -1,3 +1,4 @@
+import {scoreFromObservations,loadObservations,observedPrompt} from './rarity.mjs';
 import {lastModified} from './content-updates.mjs';
 import {archivePage,todayHub,archiveIndex,validDate} from './answer-archives.mjs';
 import {promptPages,renderPromptPage,hydrateHomepage,breadcrumbs} from './prompt-pages.mjs';
@@ -31,8 +32,9 @@ async function puzzleFor(env, date) {
   if(archived)return JSON.parse(archived.content);
   const row = await env.DB.prepare('SELECT content FROM puzzles WHERE date=?').bind(date).first();
   const stored=row?JSON.parse(row.content):null;
-  const puzzle=stored&&/Independent starter bank|OpenKrillion sample bank/.test(stored.source||'')?stored:dailyPuzzle({ ...DEMO, date, dayNumber: Math.floor((Date.parse(date) - Date.parse('2026-07-16')) / 86400000) + 1 });
+  let puzzle=stored&&/Independent starter bank|OpenKrillion sample bank/.test(stored.source||'')?stored:dailyPuzzle({ ...DEMO, date, dayNumber: Math.floor((Date.parse(date) - Date.parse('2026-07-16')) / 86400000) + 1 });
   if(date===etDate()){
+    puzzle=await scoreFromObservations(env,puzzle);
     await env.DB.prepare('INSERT OR IGNORE INTO daily_archives(date,content) VALUES(?,?)').bind(date,JSON.stringify(puzzle)).run();
     const saved=await env.DB.prepare('SELECT content FROM daily_archives WHERE date=?').bind(date).first();
     return JSON.parse(saved.content);
@@ -44,7 +46,7 @@ async function saveSample(env, puzzle) {
   if (puzzle.sample) await env.DB.prepare('INSERT OR IGNORE INTO puzzles(date,day_number,source,content) VALUES(?,?,?,?)').bind(puzzle.date, puzzle.dayNumber, puzzle.source, JSON.stringify(puzzle)).run();
 }
 function promptDTO(puzzle) {
-  return { date: puzzle.date, dayNumber: puzzle.dayNumber, sample: !!puzzle.sample, source: puzzle.source, resetsAt: resetAt(puzzle.date), prompts: puzzle.prompts.map(({ id, text }) => ({ id, text })) };
+  return { date: puzzle.date, dayNumber: puzzle.dayNumber, sample: !!puzzle.sample, source: puzzle.source, resetsAt: resetAt(puzzle.date), prompts: puzzle.prompts.map(({ id, text, rarity }) => ({ id, text, ...(rarity?{rarity}:{}) })) };
 }
 async function puzzleForRun(env, run) {
   const row = await env.DB.prepare('SELECT content FROM run_puzzles WHERE run_id=?').bind(run.id).first();
@@ -116,7 +118,7 @@ async function api(request, env, url) {
     if (!run) {
       const rid = crypto.randomUUID();
       {
-        const selected = mode === 'practice' ? practicePuzzle(puzzle) : puzzle;
+        const selected = mode === 'practice' ? await scoreFromObservations(env,practicePuzzle(puzzle)) : puzzle;
         await env.DB.prepare('INSERT INTO run_puzzles(run_id,content) VALUES(?,?)').bind(rid, JSON.stringify(selected)).run();
       }
       await env.DB.prepare('INSERT OR IGNORE INTO runs(id,player,date,mode,round_start,created_at) VALUES(?,?,?,?,?,?)').bind(rid, id, date, mode, data.ready === true ? null : Date.now() + PREVIEW_MS, Date.now()).run();
@@ -200,11 +202,15 @@ export default {
       }
       const promptPage=promptPages.find(p=>p.path===requested);
       if(promptPage){
-        const stats=(await env.DB.prepare(`SELECT a.tier,COUNT(*) AS attempts FROM answers a
-          JOIN runs r ON r.id=a.run_id JOIN run_puzzles rp ON rp.run_id=r.id
-          JOIN json_each(rp.content,'$.prompts') p ON CAST(p.key AS INTEGER)=a.round
-          WHERE r.completed=1 AND json_extract(p.value,'$.id')=? AND json_extract(p.value,'$.text')=? GROUP BY a.tier`).bind(promptPage.prompt.id,promptPage.prompt.text).all()).results;
-        return headers(new Response(request.method==='HEAD'?null:renderPromptPage(promptPage,stats,env),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}}));
+        const rows=await loadObservations(env);
+        const scored=observedPrompt(promptPage.prompt,rows);
+        const totals=new Map();
+        if(scored.rarity.method==='observed')for(const row of rows.filter(r=>r.promptId===scored.id&&r.promptText===scored.text)){
+          const answer=scored.answers.find(a=>normalize(a.answer)===normalize(row.answer));
+          if(answer)totals.set(answer.tier,(totals.get(answer.tier)||0)+Number(row.count));
+        }
+        const stats=[...totals].map(([tier,attempts])=>({tier,attempts}));
+        return headers(new Response(request.method==='HEAD'?null:renderPromptPage({...promptPage,prompt:scored},stats,env),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}}));
       }
       if(requested==='/answers/'||requested==='/answers/today/'){
         const html=requested==='/answers/'?archiveIndex(dates,env):todayHub(await puzzleFor(env,etDate()),env);

@@ -97,3 +97,10 @@ Start a Krillion category by finding one safe answer. Then ask whether a second 
 Daily and Unlimited play are free, without credits or checkout. Browse the answer help, categories and game guide from site navigation. No AI provider is needed to play.
 
 [Play now](/?play=1#game) · [Answer help](/answers/) · [Browse categories](/categories/)
+
+
+## When rarity comes from observed choices
+
+A prompt needs 100 accepted choices from distinct browser identifiers in completed dives over the preceding 30 days before observed scoring is used. Only the first accepted choice per browser and prompt counts. Rejected attempts, blanks, passes and abandoned dives do not enter that denominator. A browser identifier is not a verified person.
+
+The server applies add-one smoothing to each accepted answer. Shares of at least 25%, 15%, 8%, 3%, and 1% map to the five increasing tiers; below 1% maps to One in a Krillion. Equal shares receive equal tiers. With fewer than 100 choices, explicitly labelled editorial tiers remain in place. A new run snapshots its tiers; existing runs and date archives do not get rescored.
