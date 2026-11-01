@@ -32,7 +32,7 @@ async function puzzleFor(env, date) {
   if(archived)return JSON.parse(archived.content);
   const row = await env.DB.prepare('SELECT content FROM puzzles WHERE date=?').bind(date).first();
   const stored=row?JSON.parse(row.content):null;
-  let puzzle=stored&&/Independent starter bank|OpenKrillion sample bank/.test(stored.source||'')?stored:dailyPuzzle({ ...DEMO, date, dayNumber: Math.floor((Date.parse(date) - Date.parse('2026-07-16')) / 86400000) + 1 });
+  let puzzle=stored&&/Independent (starter bank|question bank)|OpenKrillion sample bank/.test(stored.source||'')?stored:dailyPuzzle({ ...DEMO, date, dayNumber: Math.floor((Date.parse(date) - Date.parse('2026-07-16')) / 86400000) + 1 });
   if(date===etDate()){
     puzzle=await scoreFromObservations(env,puzzle);
     await env.DB.prepare('INSERT OR IGNORE INTO daily_archives(date,content) VALUES(?,?)').bind(date,JSON.stringify(puzzle)).run();

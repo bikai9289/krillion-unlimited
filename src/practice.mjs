@@ -48,7 +48,7 @@ export function practicePuzzle(base) {
     const j = Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296 * (i + 1));
     [prompts[i], prompts[j]] = [prompts[j], prompts[i]];
   }
-  return { ...base, source: 'Independent starter bank · curated difficulty tiers, not player frequency', sample: true, prompts: prompts.slice(0, 7) };
+  return { ...base, source: 'Independent question bank · saved scoring snapshot', sample: true, prompts: prompts.slice(0, 7) };
 }
 
 export function dailyPuzzle(base) {
@@ -61,5 +61,5 @@ export function dailyPuzzle(base) {
     const j = Math.floor(seed / 4294967296 * (i + 1));
     [prompts[i], prompts[j]] = [prompts[j], prompts[i]];
   }
-  return { ...base, source: 'Independent starter bank · curated difficulty tiers, not player frequency', sample: true, prompts: prompts.slice(0, 7) };
+  return { ...base, source: 'Independent question bank · saved scoring snapshot', sample: true, prompts: prompts.slice(0, 7) };
 }
