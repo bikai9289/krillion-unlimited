@@ -1,5 +1,6 @@
+import {archivePage,todayHub,archiveIndex,validDate} from './answer-archives.mjs';
 import {promptPages,renderPromptPage,hydrateHomepage,breadcrumbs} from './prompt-pages.mjs';
-import {pages,sitemapPaths,dynamicTodayPage} from './site-content.mjs';
+import {sitemapPaths} from './site-content.mjs';
 import { SITE } from './config.mjs';
 import { documents } from './docs.mjs';
 import { homePage } from './html.mjs';
@@ -25,10 +26,19 @@ export function validateReference(today, reveal, date) {
 }
 export async function syncPuzzle(){throw new Error('Official reference synchronization is disabled. This service uses its own question bank.');}
 async function puzzleFor(env, date) {
+  const archived=await env.DB.prepare('SELECT content FROM daily_archives WHERE date=?').bind(date).first();
+  if(archived)return JSON.parse(archived.content);
   const row = await env.DB.prepare('SELECT content FROM puzzles WHERE date=?').bind(date).first();
-  if (row && /Independent starter bank|OpenKrillion sample bank/.test(JSON.parse(row.content).source || '')) { const p = JSON.parse(row.content); return p; }
-  return dailyPuzzle({ ...DEMO, date, dayNumber: Math.floor((Date.parse(date) - Date.parse('2026-07-16')) / 86400000) + 1 });
+  const stored=row?JSON.parse(row.content):null;
+  const puzzle=stored&&/Independent starter bank|OpenKrillion sample bank/.test(stored.source||'')?stored:dailyPuzzle({ ...DEMO, date, dayNumber: Math.floor((Date.parse(date) - Date.parse('2026-07-16')) / 86400000) + 1 });
+  if(date===etDate()){
+    await env.DB.prepare('INSERT OR IGNORE INTO daily_archives(date,content) VALUES(?,?)').bind(date,JSON.stringify(puzzle)).run();
+    const saved=await env.DB.prepare('SELECT content FROM daily_archives WHERE date=?').bind(date).first();
+    return JSON.parse(saved.content);
+  }
+  return puzzle;
 }
+async function archivedDates(env){return (await env.DB.prepare('SELECT date FROM daily_archives WHERE date<=? ORDER BY date DESC').bind(etDate()).all()).results.map(r=>r.date);}
 async function saveSample(env, puzzle) {
   if (puzzle.sample) await env.DB.prepare('INSERT OR IGNORE INTO puzzles(date,day_number,source,content) VALUES(?,?,?,?)').bind(puzzle.date, puzzle.dayNumber, puzzle.source, JSON.stringify(puzzle)).run();
 }
@@ -177,7 +187,9 @@ export default {
       const docs = documents();
       if (docs[url.pathname]) return headers(new Response(request.method==='HEAD'?null:docs[url.pathname],{headers:{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-cache'}}));
       const requested=url.pathname;
-      const allPaths=[...sitemapPaths,...promptPages.map(p=>p.path)];
+      if(requested==='/sitemap.xml'||requested.startsWith('/answers/'))await puzzleFor(env,etDate());
+      const dates=requested==='/sitemap.xml'||requested.startsWith('/answers/')?await archivedDates(env):[];
+      const allPaths=[...sitemapPaths,...promptPages.map(p=>p.path),...dates.map(d=>`/answers/${d}/`)];
       const known=allPaths.find(p=>p.replace(/\/$/,'')===requested.replace(/\/$/,''));
       if(known && requested!==known){url.pathname=known;return headers(Response.redirect(url.href,301));}
       if(requested==='/'){
@@ -193,9 +205,16 @@ export default {
           WHERE r.completed=1 AND json_extract(p.value,'$.id')=? AND json_extract(p.value,'$.text')=? GROUP BY a.tier`).bind(promptPage.prompt.id,promptPage.prompt.text).all()).results;
         return headers(new Response(request.method==='HEAD'?null:renderPromptPage(promptPage,stats,env),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}}));
       }
-      if(requested==='/answers/today/'){
-        const html=dynamicTodayPage(await puzzleFor(env,etDate()),env).replace('</head>',breadcrumbs([['Home','/'],['Answers','/answers/'],['Today','/answers/today/']])+'</head>');
+      if(requested==='/answers/'||requested==='/answers/today/'){
+        const html=requested==='/answers/'?archiveIndex(dates,env):todayHub(await puzzleFor(env,etDate()),env);
         return headers(new Response(request.method==='HEAD'?null:html,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}}));
+      }
+      const dated=requested.match(/^\/answers\/([^/]+)\/?$/);
+      if(dated&&dated[1]!=='today'){
+        if(!validDate(dated[1])||dated[1]>etDate())return headers(fail('Saved answer edition not found.',404));
+        const row=await env.DB.prepare('SELECT content FROM daily_archives WHERE date=?').bind(dated[1]).first();
+        if(!row)return headers(fail('Saved answer edition not found.',404));
+        return headers(new Response(request.method==='HEAD'?null:archivePage(JSON.parse(row.content),dates,env),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}}));
       }
       if(known){
         const assetPath='/site'+(known==='/'?'/':known.replace(/\/$/,'')+'/')+'index.html';
@@ -221,5 +240,5 @@ export default {
       return headers(asset, asset.ok ? { 'Cache-Control': url.pathname.endsWith('.woff2') ? 'public, max-age=31536000, immutable' : 'public, max-age=300' } : {});
     } catch (e) { console.error('Request failed:',e.message); return headers(fail('The signal is temporarily lost. Please retry.',503)); }
   },
-  async scheduled() { /* Independent bank: no external puzzle synchronization. */ },
+  async scheduled(event,env,ctx) {ctx.waitUntil(puzzleFor(env,etDate()));},
 };

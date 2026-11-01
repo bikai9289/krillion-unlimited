@@ -16,6 +16,7 @@ function database(){
   db.exec(readFileSync(new URL('../migrations/0001_initial.sql',import.meta.url),'utf8'));
   db.exec(readFileSync(new URL('../migrations/0002_pause.sql',import.meta.url),'utf8'));
   db.exec(readFileSync(new URL('../migrations/0003_practice_puzzles.sql',import.meta.url),'utf8'));
+  db.exec(readFileSync(new URL('../migrations/0004_daily_archives.sql',import.meta.url),'utf8'));
   const prepare=sql=>({
     bind(...args){
       const s=db.prepare(sql);
@@ -180,8 +181,8 @@ test('sitemap covers dedicated canonical landing pages and redirects slash varia
  const app=service();
  const response=await worker.fetch(new Request('https://krillion-unlimited.app/sitemap.xml'),app.env,{});
  const xml=await response.text();
- assert.equal(sitemapPaths.length,12);
- assert.equal(new Set(sitemapPaths).size,12);
+ assert.equal(sitemapPaths.length,15);
+ assert.equal(new Set(sitemapPaths).size,15);
  for(const path of sitemapPaths)assert.ok(xml.includes(`<loc>https://krillion-unlimited.app${path}</loc>`));
  const redirect=await worker.fetch(new Request('https://krillion-unlimited.app/how-to-play'),app.env,{});
  assert.equal(redirect.status,301);
@@ -238,4 +239,41 @@ test('prompt detail pages use bank scope and real completed-run aggregates',asyn
  assert.ok(html.includes('not a unique-player count'));
  assert.equal((html.match(/<h1[ >]/g)||[]).length,1);
  app.env.DB.close();
+});
+
+test('six categories include real music language and games prompts',async()=>{
+ const {categories,categoryContent}=await import('../src/site-content.mjs');
+ assert.equal(categories.length,6);
+ for(const slug of ['music','language','games']){
+   const c=categories.find(c=>c.slug===slug);assert.ok(c.ids.length);
+   const html=categoryContent(slug);
+   for(const id of c.ids)assert.ok(html.includes(PRACTICE_BANK.find(p=>p.id===id).text));
+ }
+});
+
+test('three day rollover preserves dated snapshots, self canonicals and archive discovery',async(t)=>{
+ t.mock.timers.enable({apis:['Date'],now:Date.parse('2026-11-01T05:01:00Z')});
+ const app=service();const saved=[];
+ try{
+  for(const stamp of ['2026-11-01T05:01:00Z','2026-11-02T05:01:00Z','2026-11-03T05:01:00Z']){
+   t.mock.timers.setTime(Date.parse(stamp));
+   const pending=[];await worker.scheduled({},app.env,{waitUntil:p=>pending.push(p)});await Promise.all(pending);
+   const today=(await app.call('/api/today')).body;
+   const date=today.date;
+   const res=await worker.fetch(new Request('https://krillion-unlimited.app/answers/'+date+'/'),app.env,{});const html=await res.text();
+   assert.equal(res.status,200);assert.ok(html.includes('rel="canonical" href="https://krillion-unlimited.app/answers/'+date+'/"'));
+   for(const p of today.prompts)assert.ok(html.includes(p.text));
+   saved.push({date,html,prompts:today.prompts});
+  }
+  const index=await worker.fetch(new Request('https://krillion-unlimited.app/answers/'),app.env,{});const text=await index.text();
+  const map=await worker.fetch(new Request('https://krillion-unlimited.app/sitemap.xml'),app.env,{});const xml=await map.text();
+  for(const entry of saved){assert.ok(text.includes('/answers/'+entry.date+'/'));assert.ok(xml.includes('/answers/'+entry.date+'/'));}
+  await app.env.DB.prepare('UPDATE puzzles SET content=? WHERE date=?').bind(JSON.stringify({...DEMO,date:saved[0].date}),saved[0].date).run();
+  const old=await worker.fetch(new Request('https://krillion-unlimited.app/answers/'+saved[0].date+'/'),app.env,{});const oldHtml=await old.text();
+  for(const p of saved[0].prompts)assert.ok(oldHtml.includes(p.text));
+  const hub=await worker.fetch(new Request('https://krillion-unlimited.app/answers/today/'),app.env,{});assert.ok((await hub.text()).includes('/answers/2026-11-03/'));
+  for(const date of ['2026-11-04','2026-02-30','2026-10-01','not-a-date'])assert.equal((await worker.fetch(new Request('https://krillion-unlimited.app/answers/'+date+'/'),app.env,{})).status,404);
+  const redirect=await worker.fetch(new Request('https://krillion-unlimited.app/answers/2026-11-01'),app.env,{});assert.equal(redirect.status,301);
+  const head=await worker.fetch(new Request('https://krillion-unlimited.app/answers/2026-11-01/',{method:'HEAD'}),app.env,{});assert.equal(await head.text(),'');
+ }finally{app.env.DB.close();t.mock.timers.reset()}
 });

@@ -24,3 +24,16 @@ Planets, chemical symbols, noble gases, alkali metals, SI units and Platonic sol
 Unlimited can also include food, animals, superheroes, playing cards, calendars and language. A random dive contains seven distinct prompts from the shared bank. Familiar prompts can recur between dives because the starter collection is finite.
 
 [Play a mixed Unlimited dive](/?play=1#game) · [Learn the rules](/how-to-play/) · [Answer help](/answers/)
+
+
+### Music
+
+Standard guitar tuning has six strings but five distinct note letters. Learn how to answer the actual prompt rather than naming a song or instrument. [Explore music prompts](/categories/music/).
+
+### Language
+
+Greek letter names and Roman numeral symbols use different answer formats. Review the accepted scope and the examples already in our bank. [Explore language prompts](/categories/language/).
+
+### Games
+
+Chess piece types and playing-card suits reward careful reading. A king fits the chess prompt, while hearts is a card suit. [Explore games prompts](/categories/games/).

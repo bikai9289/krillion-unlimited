@@ -46,3 +46,16 @@ The homepage is now rendered at request time by Worker from the same puzzleFor(e
 The sitemap now contains 40 URLs. Homepage schema contains VideoGame with the own origin, FAQPage matching the four visible expanded FAQs, and BreadcrumbList. Today's answers and prompt pages also include breadcrumbs. Category listings and the prompt index provide crawlable links to every guide.
 
 Validation: 18 Node tests; full Next export and source checks; all 40 URLs' H1/canonical checks; live seven-round browser flow; a separate JavaScript-disabled browser check via node scripts/no-js-audit.mjs. GSC submission and deployment are still separate operations.
+
+
+## Six categories and daily answer archives
+
+Music, Language and Games are now explicit categories backed by existing bank entries and linked from /categories/. The bank remains 28 prompts. The static sitemap baseline is 43 pages; saved daily dates are added dynamically (44 including the first date).
+
+Migration 0004_daily_archives.sql adds an independent immutable-by-application daily snapshot table. puzzleFor first reads a saved archive; when today is missing it selects the existing own puzzle (or deterministic own bank), inserts once and reads the winning snapshot back. This preserves the exact Daily version across concurrent first requests. Existing runs, answers and player records are not rewritten.
+
+/answers/today/ is the rotating current-date hub. /answers/YYYY-MM-DD/ renders the stored version with its own H1/title/canonical, full accepted answer lists, point values and neighbouring saved-date links. /answers/ and sitemap.xml discover saved dates. Invalid/future/unrecorded dates return 404 rather than generating speculative past content. No historical archive was invented during deployment.
+
+Cron triggers 04:05 and 05:05 UTC cover New York midnight in DST and standard time. A normal daily request also creates the snapshot. Deploying the new Worker requires applying migration 0004 first. The scheduled handler performs no reference synchronization.
+
+Validation adds an automated three-day rollover test (including scheduled-only snapshot creation before API reads), immutable older answers after bank-row edits, canonical/index/sitemap checks, invalid/future/missing date cases and HEAD/redirect checks. Browser acceptance: npm run test:archives [production URL can be passed directly to the script]. Real three-day accumulation will happen over calendar time, not immediately after this release.
