@@ -242,7 +242,7 @@ test('prompt detail pages use bank scope and real completed-run aggregates',asyn
  app.env.DB.close();
 });
 
-test('six categories include real music language and games prompts',async()=>{
+test('category collections include real music language and games prompts',async()=>{
  const {categories,categoryContent}=await import('../src/site-content.mjs');
  assert.equal(categories.length,7);
  for(const slug of ['music','language','games']){
@@ -279,7 +279,7 @@ test('three day rollover preserves dated snapshots, self canonicals and archive 
  }finally{app.env.DB.close();t.mock.timers.reset()}
 });
 
-test('expanded bank has at least 100 unique prompts and every category has ten real entries',async()=>{
+test('bank has unique prompts and core categories have ten entries with a three-prompt Calendar',async()=>{
  const {categories}=await import('../src/site-content.mjs');
  const {promptPages}=await import('../src/prompt-pages.mjs');
  assert.ok(PRACTICE_BANK.length>=100);
