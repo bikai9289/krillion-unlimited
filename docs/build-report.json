@@ -1,8 +1,8 @@
 {
   "name": "Krillion Unlimited",
-  "words": 2700,
-  "krillion": 133,
-  "density": 4.925925925925926,
+  "words": 374,
+  "krillion": 6,
+  "density": 1.6042780748663104,
   "documents": [
     "/llms.txt",
     "/pricing.md",
@@ -12,5 +12,20 @@
   "languages": [
     "en",
     "zh"
+  ],
+  "framework": "GitBase-derived Next.js App Router",
+  "indexablePages": 11,
+  "pages": [
+    "/",
+    "/krillion-game/",
+    "/how-to-play/",
+    "/answers/",
+    "/answers/today/",
+    "/categories/",
+    "/categories/geography/",
+    "/categories/sports/",
+    "/categories/science/",
+    "/about",
+    "/privacy"
   ]
 }

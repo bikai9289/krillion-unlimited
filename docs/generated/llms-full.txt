@@ -1,9 +1,8 @@
 # Krillion Unlimited
 
-> An independent open-source Krillion-inspired daily trivia game. Not affiliated with the original Krillion service.
+> An independent Krillion-inspired daily trivia game. Not affiliated with the original Krillion service.
 
 Canonical: https://krillion-unlimited.app/
-Source code (MIT): https://github.com/bikai9289/krillion-unlimited
 
 ## Play
 Seven open-answer prompts, a 3-second preview, and 25 seconds per answer. Prepared rarity tiers award 10, 15, 30, 60, 85 or 100 points. Seven answers can total 700 points and 7,000 metres.
@@ -13,17 +12,19 @@ Choose Begin Descent, read the category, type an answer, press Enter or Dive, co
 Daily resets at midnight America/New_York. Practice is separate. Guest settings and history have a device-local copy; random browser identifiers and completed game records are held by this service. Comparisons use this site's players only.
 
 ## Pages
-- [Play and expandable guide](https://krillion-unlimited.app/)
-- [Chinese help and AI questions](https://krillion-unlimited.app/?lang=zh)
+- [Play](https://krillion-unlimited.app/)
+- [Rules](https://krillion-unlimited.app/how-to-play/)
+- [Game guide](https://krillion-unlimited.app/krillion-game/)
+- [Own daily answers](https://krillion-unlimited.app/answers/today/)
+- [Categories](https://krillion-unlimited.app/categories/)
 - [Privacy](https://krillion-unlimited.app/privacy)
 - [About](https://krillion-unlimited.app/about)
 - [Pricing](https://krillion-unlimited.app/pricing.md)
 - [Capabilities](https://krillion-unlimited.app/models.md)
 - [Full reference](https://krillion-unlimited.app/llms-full.txt)
-- [Report a problem](https://github.com/bikai9289/krillion-unlimited/issues)
 
 ## Limits
-No generative model, credits, payment flow, themed packs, user login or official affiliation. The public source ships a small independently assembled sample bank. Runtime reference snapshots are separate from the MIT application license.
+No generative model, credits, payment flow, themed packs, user login or official affiliation. The public source ships a small independently assembled sample bank. Official question synchronization is disabled; only the independent bank is used.
 
 These documents are rendered from the same public product configuration used by the website. Changes take effect on deployment. External AI links only prefill a public question and may require a provider account; answers and indexing are not guaranteed.
 
@@ -42,7 +43,6 @@ The game has 7 prompts, 25 seconds per answer and a maximum of 700 points. Each 
 No payment is collected, so no payment refund workflow exists. External AI providers may have their own plans and policies. Third-party hosting costs are not player prices.
 
 Privacy: https://krillion-unlimited.app/privacy
-Source: https://github.com/bikai9289/krillion-unlimited
 
 ---
 
@@ -67,7 +67,7 @@ No generative AI model is available or called by this game. The models.md filena
 
 Gameplay and in-app help: English. External AI question links support English and Chinese.
 
-Answers are validated server-side against prepared entries, with normalization, known aliases and conservative typo correction. Reference answer snapshots may differ from the original game in aliases or subsequent edits. Reference synchronization is disabled by default. The independent starter bank supplies both deterministic daily prompts and randomized unlimited practice. Each run snapshots its answer set.
+Answers are validated server-side against prepared entries, with normalization, known aliases and conservative typo correction. Reference answer snapshots may differ from the original game in aliases or subsequent edits. Official reference synchronization is disabled. The independent starter bank supplies both deterministic daily prompts and randomized unlimited practice. Each run snapshots its answer set.
 
 No accounts, multiplayer, themed packs, checkout or cross-device account sync is implemented. Practice does not change the saved Daily result. Rankings include completed daily and unlimited runs; one best result per browser and UTC period.
 

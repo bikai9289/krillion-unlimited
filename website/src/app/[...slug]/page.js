@@ -1,0 +1,7 @@
+import {notFound} from 'next/navigation';
+import {Layout} from '../../components/Layout';
+import {getPostData} from '../../lib/posts';
+import {pages,categoryContent} from '../../../../src/site-content.mjs';
+export function generateStaticParams(){return pages.filter(p=>p.slug!=='answers-today').map(p=>({slug:p.path.split('/').filter(Boolean)}))}
+export async function generateMetadata({params}){const {slug}=await params;const page=pages.find(p=>p.path.split('/').filter(Boolean).join('/')===slug.join('/'));if(!page)return {};return {title:page.title,description:page.description,alternates:{canonical:page.path},openGraph:{title:page.title,description:page.description,url:page.path,images:['/assets/og.png']}}}
+export default async function Article({params}){const {slug}=await params;const page=pages.find(p=>p.path.split('/').filter(Boolean).join('/')===slug.join('/'));if(!page||page.slug==='answers-today')notFound();const html=page.slug.startsWith('categories-')?categoryContent(slug[1]):(await getPostData(page.slug)).contentHtml;return <Layout><article className="content-page"><nav className="breadcrumbs"><a href="/">Home</a> / <a href="/categories/">Explore</a></nav><h1>{page.h1}</h1><p className="article-intro">{page.description}</p><div className="article-body" dangerouslySetInnerHTML={{__html:html}}/><a className="primary content-play" href="/?play=1#game">Play Now <span>↘</span></a></article></Layout>}

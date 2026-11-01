@@ -10,6 +10,12 @@ This repository contains the approved deep-ocean interface integrated with Cloud
 - Design explorations: `designs/`; the live application uses `src/game-page.mjs`, `public/game.css` and `public/game.mjs`.
 - Original license and notices are retained. Not affiliated with krillion.io.
 
+## GitBase content layer
+
+The site now uses [GitBase](https://github.com/qiayue/GitBase)'s Next.js + filesystem Markdown architecture for the homepage and dedicated game, rules, answers and category pages. The existing Cloudflare Worker + D1 still runs the game and renders the current own Daily answers dynamically. `npm run build` builds both layers; deploy from the repository root as before.
+
+See [website/README.md](website/README.md), [SEO evidence](docs/seo-evidence.md), and [implementation notes](docs/implementation.md). Public product pages use canonical HTTPS URLs and do not expose repository promotion. Attribution and licenses are retained in the source tree.
+
 ## Development
 
 Requires Node.js 24+.

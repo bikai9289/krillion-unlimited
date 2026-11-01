@@ -9,6 +9,7 @@ import { SITE } from '../src/config.mjs';
 import { documents, aiLinks } from '../src/docs.mjs';
 import { etDate, resetAt, normalize, matchAnswer, TIERS } from '../public/rules.mjs';
 import { homePage } from '../src/html.mjs';
+import { sitemapPaths } from '../src/site-content.mjs';
 
 function database(){
   const db=new DatabaseSync(':memory:');
@@ -90,12 +91,12 @@ test('four docs share product facts, full composes all three, config mutations p
   const b=documents(changed);assert.ok(b['/pricing.md'].includes('7 USD'));assert.ok(b['/models.md'].includes('Isolated capability test'));assert.ok(b['/llms-full.txt'].includes('Test pricing'));assert.ok(!JSON.stringify(b).includes('DO_NOT_LEAK'));
 });
 test('five AI destinations share one localized prompt, canonical docs and native link safety',()=>{
-  for(const lang of SITE.languages){const links=aiLinks(lang);assert.equal(links.length,5);const q=links.map(a=>new URL(a.href).searchParams.get('q'));assert.equal(new Set(q).size,1);assert.ok(q[0].includes(SITE.origin+'/llms-full.txt'));assert.ok(q[0].includes(lang==='zh'?'用中文回答':'answer in English'));assert.equal(new URL(links.find(a=>a.name==='Google AI Mode').href).searchParams.get('udm'),'50');const html=homePage(lang);assert.ok(html.includes('noopener noreferrer nofollow'));assert.ok(html.includes('original-footer'));assert.ok(html.includes('AI &amp; Agent Docs'));}
+  for(const lang of SITE.languages){const links=aiLinks(lang);assert.equal(links.length,5);const q=links.map(a=>new URL(a.href).searchParams.get('q'));assert.equal(new Set(q).size,1);assert.ok(q[0].includes(SITE.origin+'/llms-full.txt'));assert.ok(q[0].includes(lang==='zh'?'用中文回答':'answer in English'));assert.equal(new URL(links.find(a=>a.name==='Google AI Mode').href).searchParams.get('udm'),'50');const html=homePage(lang);assert.ok(html.includes('id="play-now"'));assert.ok(!html.includes('github.com'));}
 });
-test('SSR SEO exposes an expandable guide, correct canonical and no crawler-specific cloaking',()=>{
-  const html=homePage();assert.ok(html.includes('<h1 aria-label="Krillion Unlimited'));assert.ok(html.includes('<details id="guide"'));assert.ok(html.includes('https://krillion-unlimited.app/assets/og.png'));
+test('SSR homepage has a visible keyword heading, playable entry and a short guide-link structure',()=>{
+  const html=homePage();assert.ok(html.includes('<h1>Krillion Unlimited</h1>'));assert.ok(!html.includes('id="guide"'));assert.ok(html.includes('href="/how-to-play/"'));assert.ok(html.includes('id="play-now"'));assert.ok(html.includes('https://krillion-unlimited.app/assets/og.png'));
   const text=html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'').replace(/<[^>]+>/g,' '),words=text.match(/[A-Za-z]+(?:[’'-][A-Za-z]+)*/g),density=words.filter(w=>w.toLowerCase()==='krillion').length/words.length;
-  assert.ok(words.length>1500);assert.ok(density>.03);assert.ok(!html.includes('googlebot'));
+  assert.ok(words.length<1500);assert.equal((html.match(/<h1[ >]/g)||[]).length,1);assert.ok(!html.includes('googlebot'));
 });
 test('public docs GET and HEAD are readable UTF-8 and not SPA HTML',async()=>{
   const s=service();for(const path of Object.keys(documents()))for(const method of ['GET','HEAD']){const r=await worker.fetch(new Request('http://localhost:3051'+path,{method}),s.env,{});assert.equal(r.status,200);assert.match(r.headers.get('Content-Type'),/text\/plain; charset=utf-8/);const body=await r.text();if(method==='HEAD')assert.equal(body,'');else{assert.ok(body.startsWith('# '+SITE.name));assert.ok(!body.includes('<!doctype html>'));}}s.env.DB.close();
@@ -172,5 +173,35 @@ test('ready dives do not expire before explicit next; daily puzzles remain pinne
  assert.deepEqual(restored.body.prompts,g.prompts);
  const next=await app.call('/api/next',{runId:g.runId});
  assert.ok(next.body.roundStart>Date.now());
+ app.env.DB.close();
+});
+
+test('sitemap covers dedicated canonical landing pages and redirects slash variants',async()=>{
+ const app=service();
+ const response=await worker.fetch(new Request('https://krillion-unlimited.app/sitemap.xml'),app.env,{});
+ const xml=await response.text();
+ assert.equal(sitemapPaths.length,11);
+ assert.equal(new Set(sitemapPaths).size,11);
+ for(const path of sitemapPaths)assert.ok(xml.includes(`<loc>https://krillion-unlimited.app${path}</loc>`));
+ const redirect=await worker.fetch(new Request('https://krillion-unlimited.app/how-to-play'),app.env,{});
+ assert.equal(redirect.status,301);
+ assert.equal(redirect.headers.get('Location'),'https://krillion-unlimited.app/how-to-play/');
+ app.env.DB.close();
+});
+
+test('today answer HTML uses this service daily puzzle without altering locked run review',async()=>{
+ const app=service();
+ const today=(await app.call('/api/today')).body;
+ const response=await worker.fetch(new Request('http://localhost:3051/answers/today/'),app.env,{});
+ const html=await response.text();
+ assert.equal(response.status,200);
+ assert.equal(response.headers.get('Cache-Control'),'no-store');
+ assert.equal((html.match(/<h1[ >]/g)||[]).length,1);
+ assert.ok(html.includes(today.date));
+ for(const prompt of today.prompts)assert.ok(html.includes(prompt.text));
+ const head=await worker.fetch(new Request('http://localhost:3051/answers/today/',{method:'HEAD'}),app.env,{});
+ assert.equal(await head.text(),'');
+ const started=(await app.call('/api/start',{ready:true})).body;
+ assert.equal((await app.call('/api/review?run='+started.runId)).status,403);
  app.env.DB.close();
 });

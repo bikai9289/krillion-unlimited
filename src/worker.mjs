@@ -1,11 +1,11 @@
+import {pages,sitemapPaths,dynamicTodayPage} from './site-content.mjs';
 import { SITE } from './config.mjs';
 import { documents } from './docs.mjs';
-import { homePage, infoPage } from './html.mjs';
+import { homePage } from './html.mjs';
 import { DEMO } from './demo.mjs';
 import { practicePuzzle, dailyPuzzle } from './practice.mjs';
 import { TIERS, normalize, matchAnswer, etDate, resetAt, ROUND_MS, PREVIEW_MS } from '../public/rules.mjs';
 
-const cache = new Map();
 const json = (data, status = 200, extra = {}) => Response.json(data, { status, headers: { 'Cache-Control': 'no-store', ...extra } });
 const fail = (message, status = 400) => json({ error: message }, status);
 const playerId = request => request.headers.get('Cookie')?.match(/(?:^|;\s*)ok_player=([a-f0-9-]{36})/)?.[1];
@@ -22,25 +22,10 @@ export function validateReference(today, reveal, date) {
     return { id: p.id, text: p.text, answers: source.answers.filter(a => typeof a.answer === 'string' && TIERS[a.tier]).map(a => ({ answer: a.answer, tier: a.tier, ...(a.quip ? { quip: a.quip } : {}), ...(Array.isArray(a.aliases) ? { aliases: a.aliases.filter(x => typeof x === 'string') } : {}) })) };
   }) };
 }
-export async function syncPuzzle(env, date = etDate()) {
-  const [t, r] = await Promise.all([
-    fetch('https://krillion.io/api/today', { signal: AbortSignal.timeout(12000), headers: { 'User-Agent': 'Krillion Unlimited/1.0 (+https://krillion-unlimited.app/about)' } }),
-    fetch(`https://krillion.io/api/reveal?date=${date}`, { signal: AbortSignal.timeout(12000), headers: { 'User-Agent': 'Krillion Unlimited/1.0 (+https://krillion-unlimited.app/about)' } }),
-  ]);
-  if (!t.ok || !r.ok) throw new Error('Reference service unavailable');
-  const puzzle = validateReference(await t.json(), await r.json(), date);
-  await env.DB.prepare('INSERT INTO puzzles(date,day_number,source,content) VALUES(?,?,?,?) ON CONFLICT(date) DO UPDATE SET day_number=excluded.day_number, source=excluded.source, content=excluded.content, updated_at=CURRENT_TIMESTAMP').bind(date, puzzle.dayNumber, puzzle.source, JSON.stringify(puzzle)).run();
-  if (env.BUCKET) await env.BUCKET.put(`puzzles/${date}.json`, JSON.stringify(puzzle), { httpMetadata: { contentType: 'application/json' } });
-  cache.set(date, puzzle);
-  return puzzle;
-}
+export async function syncPuzzle(){throw new Error('Official reference synchronization is disabled. This service uses its own question bank.');}
 async function puzzleFor(env, date) {
-  if (cache.has(date)) return cache.get(date);
   const row = await env.DB.prepare('SELECT content FROM puzzles WHERE date=?').bind(date).first();
-  if (row) { const p = JSON.parse(row.content); cache.set(date, p); return p; }
-  if (env.REFERENCE_SYNC === 'true' && date === etDate()) {
-    try { return await syncPuzzle(env, date); } catch (e) { console.warn('Puzzle synchronization failed:', e.message); }
-  }
+  if (row && /Independent starter bank|OpenKrillion sample bank/.test(JSON.parse(row.content).source || '')) { const p = JSON.parse(row.content); return p; }
   return dailyPuzzle({ ...DEMO, date, dayNumber: Math.floor((Date.parse(date) - Date.parse('2026-07-16')) / 86400000) + 1 });
 }
 async function saveSample(env, puzzle) {
@@ -178,10 +163,7 @@ async function api(request, env, url) {
     await env.DB.prepare('INSERT INTO feedback(player,date,kind,text,created_at) VALUES(?,?,?,?,?)').bind(player,date,kind,text,Date.now()).run();
     return json({ ok:true });
   }
-  if (path === '/api/admin/sync') {
-    if (!env.ADMIN_TOKEN || request.headers.get('Authorization') !== `Bearer ${env.ADMIN_TOKEN}`) return fail('Not found.',404);
-    const p = await syncPuzzle(env,date); return json({ date:p.date, rounds:p.prompts.length });
-  }
+  if (path === '/api/admin/sync') return fail('Not found.',404);
   return fail('Unknown endpoint.',404);
 }
 export default {
@@ -193,10 +175,20 @@ export default {
       if (!['GET','HEAD'].includes(request.method)) return headers(fail('Method not allowed.',405));
       const docs = documents();
       if (docs[url.pathname]) return headers(new Response(request.method==='HEAD'?null:docs[url.pathname],{headers:{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-cache'}}));
-      if (url.pathname === '/') return headers(new Response(request.method==='HEAD'?null:homePage(url.searchParams.get('lang') === 'zh' ? 'zh':'en',env),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-cache'}}));
-      if (['/privacy','/about'].includes(url.pathname)) return headers(new Response(request.method==='HEAD'?null:infoPage(url.pathname),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'public, max-age=300'}}));
+      const requested=url.pathname;
+      const known=sitemapPaths.find(p=>p.replace(/\/$/,'')===requested.replace(/\/$/,''));
+      if(known && requested!==known){url.pathname=known;return headers(Response.redirect(url.href,301));}
+      if(requested==='/answers/today/')return headers(new Response(request.method==='HEAD'?null:dynamicTodayPage(await puzzleFor(env,etDate()),env),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}}));
+      if(known){
+        const assetPath='/site'+(known==='/'?'/':known.replace(/\/$/,'')+'/')+'index.html';
+        const exported=await env.ASSETS.fetch(new Request(new URL(assetPath,url),{method:request.method}));
+        if(exported.ok){let html=request.method==='HEAD'?null:await exported.text();
+          if(html&&env.GSC_VERIFY)html=html.replace('</head>','<meta name="google-site-verification" content="'+String(env.GSC_VERIFY).replace(/[&<>"']/g,'')+'"></head>');
+          return headers(new Response(html,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-cache'}}));}
+        if(known==='/')return headers(new Response(request.method==='HEAD'?null:homePage('en',env),{headers:{'Content-Type':'text/html; charset=utf-8'}}));
+      }
       if (url.pathname === '/robots.txt') return headers(new Response('User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: https://krillion-unlimited.app/sitemap.xml\n',{headers:{'Content-Type':'text/plain; charset=utf-8'}}));
-      if (url.pathname === '/sitemap.xml') return headers(new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+['/','/about','/privacy'].map(p=>`<url><loc>${SITE.origin}${p}</loc></url>`).join('')+'</urlset>',{headers:{'Content-Type':'application/xml; charset=utf-8'}}));
+      if (url.pathname === '/sitemap.xml') return headers(new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+sitemapPaths.map(p=>`<url><loc>${SITE.origin}${p}</loc></url>`).join('')+'</urlset>',{headers:{'Content-Type':'application/xml; charset=utf-8'}}));
       if (url.pathname === '/BingSiteAuth.xml' && env.BING_VERIFY) return headers(new Response(`<?xml version="1.0"?><users><user>${env.BING_VERIFY.replace(/[^a-zA-Z0-9]/g,'')}</user></users>`,{headers:{'Content-Type':'application/xml'}}));
       // R2 is private: expose only deliberately public, versioned assets.
       if (url.pathname.startsWith('/media/')) {
@@ -211,5 +203,5 @@ export default {
       return headers(asset, asset.ok ? { 'Cache-Control': url.pathname.endsWith('.woff2') ? 'public, max-age=31536000, immutable' : 'public, max-age=300' } : {});
     } catch (e) { console.error('Request failed:',e.message); return headers(fail('The signal is temporarily lost. Please retry.',503)); }
   },
-  async scheduled(event,env,ctx) { ctx.waitUntil(syncPuzzle(env).catch(e=>console.error('Scheduled reference sync failed:',e.message))); },
+  async scheduled() { /* Independent bank: no external puzzle synchronization. */ },
 };

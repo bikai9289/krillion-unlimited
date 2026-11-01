@@ -8,3 +8,9 @@ wrangler.production.jsonc
 output/
 private/
 .DS_Store
+
+gitbase-template/
+website/.next/
+website/out/
+public/site/
+public/_next/

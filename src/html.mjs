@@ -1,3 +1,4 @@
+import {linkCards,siteFooter} from './site-content.mjs';
 import { gameBody } from './game-page.mjs';
 import { siteNav, board, modePicker, landingContent } from './shell.mjs';
 import { SITE } from './config.mjs';
@@ -47,6 +48,16 @@ export function infoPage(path) {
 
 export function homePage(lang='en',env={}) {
  const legacy=legacyHomePage(lang,env);
- const guide=legacy.slice(legacy.indexOf('<details id="guide"'),legacy.indexOf('<script type="module"'));
- return legacy.replace(/<body[\s\S]*<\/body>/,()=>'<body>'+gameBody.replace('<dialog id="help">',guide+'<dialog id="help">')+'</body>').replace('href="/site.css"','href="/game.css"').replace('href="/style.css"','href="/game.css"');
+ let body=gameBody;
+ body=body.replace(/<section class="manifesto"[\s\S]*?<footer>[\s\S]*?<\/footer>/,linkCards+siteFooter);
+ body=body.replace('<h1 aria-label="Krillion Unlimited">Think rare.<br><em>Dive deeper.</em></h1>','<h1>Krillion Unlimited</h1>');
+ body=body.replace('<section class="ocean"','<section id="game" class="ocean"');
+ body=body.replace('<div class="game-hud">','<div class="game-cover" id="game-cover"><p class="eyebrow">FREE · SEVEN QUESTIONS · NO DAILY CAP</p><h2>Ready to dive deeper?</h2><p>One answer can change your whole dive.</p><button class="primary" id="play-now">▶ Play Now <span>↘</span></button><p id="launch-status" role="status">Your ocean is ready.</p></div><div class="game-hud">');
+ body=body.replace('<button data-help>HOW TO PLAY <span>↗</span></button>','<a href="/how-to-play/">HOW TO PLAY ↗</a><a href="/answers/today/">ANSWERS ↗</a>');
+ body=body.replace('<div class="play-view"','<div hidden class="play-view"').replace('<div class="result-view"','<div hidden class="result-view"');
+ body=body.replace('<h2 id="question">Loading your first question…</h2>','<h2 id="question">Name a planet in our solar system</h2>');
+ body=body.replace('<button data-home>RESTART ↻</button>','<button data-help>PAUSE / HELP</button><button data-home>RESTART ↻</button>');
+ let result=legacy.replace(/<body[\s\S]*<\/body>/,()=>'<body>'+body+'</body>').replace('href="/site.css"','href="/content.css"').replace('href="/style.css"','href="/game.css"');
+ result=result.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/,'<script type="application/ld+json">'+JSON.stringify({'@context':'https://schema.org','@type':'VideoGame',name:'Krillion Unlimited',url:SITE.origin,description:SITE.description,isAccessibleForFree:true,gamePlatform:'Web browser'})+'</script>');
+ return result;
 }

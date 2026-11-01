@@ -1,0 +1,18 @@
+{
+  "name": "@krillion/website",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev --port 3052",
+    "build": "next build"
+  },
+  "dependencies": {
+    "next": "15.5.28",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "gray-matter": "^4.0.3",
+    "remark": "^15.0.1",
+    "remark-html": "^16.0.1",
+    "remark-gfm": "^4.0.1"
+  }
+}

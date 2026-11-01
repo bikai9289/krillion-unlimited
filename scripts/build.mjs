@@ -25,4 +25,4 @@ for(const[path,body]of Object.entries(documents()))await writeFile('docs/generat
 const text=homePage().replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'').replace(/<[^>]+>/g,' '),words=text.match(/[A-Za-z]+(?:[’'-][A-Za-z]+)*/g)||[],count=words.filter(w=>w.toLowerCase()==='krillion').length;
 await writeFile('docs/build-report.json',JSON.stringify({name:SITE.name,words:words.length,krillion:count,density:count/words.length*100,documents:Object.keys(documents()),languages:SITE.languages},null,2)+'\n');
 console.log(`Built original pixel assets, font and five local AI icons. Homepage: ${words.length} words; krillion ${count} (${(100*count/words.length).toFixed(2)}%). Four documents synchronized.`);
-if(words.length<=1500||count/words.length<=.03)throw new Error('Homepage word count or keyword density below requested threshold');
+if(!homePage().includes('id="play-now"'))throw new Error('Missing playable homepage entry');

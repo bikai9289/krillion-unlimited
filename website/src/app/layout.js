@@ -1,0 +1,2 @@
+export const metadata={metadataBase:new URL('https://krillion-unlimited.app'),title:{default:'Krillion Unlimited — Free Trivia, No Daily Limit',template:'%s'},description:'Play independent seven-question rare-answer trivia. Unlimited practice and Daily dives, free in your browser.',icons:{icon:'/assets/favicon.png'}};
+export default function RootLayout({children}){return <html lang="en"><head><link rel="stylesheet" href="/game.css"/><link rel="stylesheet" href="/content.css"/></head><body>{children}</body></html>}
