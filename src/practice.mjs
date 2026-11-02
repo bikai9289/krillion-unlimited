@@ -39,7 +39,7 @@ const mixedBank = [...originalBank, ...expansion.map(p => ({
 }))];
 
 
-const additionalCategories={p1:'food',p2:'animals',p5:'general-knowledge',p7:'entertainment','practice-2':'calendar','practice-4':'art','practice-5':'mathematics','practice-7':'calendar','practice-19':'calendar'};
+const additionalCategories={p1:'more',p2:'more',p5:'more',p7:'more','practice-2':'calendar','practice-4':'more','practice-5':'more','practice-7':'calendar','practice-19':'calendar'};
 export const PRACTICE_BANK=mixedBank.map(p=>({...p,category:p.category||additionalCategories[p.id]||p.category}));
 
 export function practicePuzzle(base) {

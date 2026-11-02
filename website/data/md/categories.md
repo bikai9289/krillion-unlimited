@@ -1,6 +1,6 @@
 ---
 title: "categories"
-date: "2026-11-01"
+date: "2026-11-02"
 ---
 
 ## Find a subject to explore
@@ -21,7 +21,9 @@ Planets, chemical symbols, noble gases, alkali metals, SI units and Platonic sol
 
 ## More subjects in mixed dives
 
-Unlimited can also include food, animals, superheroes, playing cards, calendars and language. A random dive contains seven distinct prompts from the shared bank. Familiar prompts can recur between dives because the starter collection is finite.
+Starter prompts for food, animals, entertainment, art, mathematics and general knowledge now have their own collection page, alongside calendars, language and games.
+
+[Explore more subject prompts](/categories/more/). Unlimited can also include playing cards, calendars and language. A random dive contains seven distinct prompts from the shared bank. Familiar prompts can recur between dives because the starter collection is finite.
 
 [Play a mixed Unlimited dive](/?play=1#game) · [Learn the rules](/how-to-play/) · [Answer help](/answers/)
 
@@ -42,3 +44,8 @@ Chess piece types and playing-card suits reward careful reading. A king fits the
 ### Calendar
 
 Weekdays and month lengths have exact conditions. Three existing prompts cover days of the week, 30-day months and 31-day months. [Explore Calendar prompts](/categories/calendar/).
+
+### More subjects
+
+Food preparation, animals, entertainment, art, mathematics and general-knowledge starter prompts that sit outside the larger collections. [Explore more subject prompts](/categories/more/).
+

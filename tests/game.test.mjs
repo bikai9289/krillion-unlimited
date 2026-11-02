@@ -182,8 +182,8 @@ test('sitemap covers dedicated canonical landing pages and redirects slash varia
  const app=service();
  const response=await worker.fetch(new Request('https://krillion-unlimited.app/sitemap.xml'),app.env,{});
  const xml=await response.text();
- assert.equal(sitemapPaths.length,16);
- assert.equal(new Set(sitemapPaths).size,16);
+ assert.equal(sitemapPaths.length,17);
+ assert.equal(new Set(sitemapPaths).size,17);
  for(const path of sitemapPaths)assert.ok(xml.includes(`<loc>https://krillion-unlimited.app${path}</loc>`));
  const redirect=await worker.fetch(new Request('https://krillion-unlimited.app/how-to-play'),app.env,{});
  assert.equal(redirect.status,301);
@@ -244,8 +244,8 @@ test('prompt detail pages use bank scope and real completed-run aggregates',asyn
 
 test('category collections include real music language and games prompts',async()=>{
  const {categories,categoryContent}=await import('../src/site-content.mjs');
- assert.equal(categories.length,7);
- for(const slug of ['music','language','games']){
+ assert.equal(categories.length,8);
+ for(const slug of ['music','language','games','more']){
    const c=categories.find(c=>c.slug===slug);assert.ok(c.ids.length);
    const html=categoryContent(slug);
    for(const id of c.ids)assert.ok(html.includes(PRACTICE_BANK.find(p=>p.id===id).text));
@@ -286,7 +286,7 @@ test('bank has unique prompts and core categories have ten entries with a three-
  assert.equal(new Set(PRACTICE_BANK.map(p=>p.id)).size,PRACTICE_BANK.length);
  assert.equal(new Set(PRACTICE_BANK.map(p=>normalize(p.text))).size,PRACTICE_BANK.length);
  assert.equal(new Set(promptPages.map(p=>p.path)).size,PRACTICE_BANK.length);
- for(const c of categories){assert.ok(c.ids.length>=(c.slug==='calendar'?3:10),c.slug);for(const id of c.ids)assert.ok(PRACTICE_BANK.some(p=>p.id===id));}
+ for(const c of categories){assert.ok(c.ids.length>=(c.slug==='calendar'?3:c.slug==='more'?6:10),c.slug);for(const id of c.ids)assert.ok(PRACTICE_BANK.some(p=>p.id===id));}
  for(const p of PRACTICE_BANK){
   assert.ok(p.answers.length>=2,p.id);assert.ok(p.answers.some(a=>a.tier==='krillion'),p.id);
   const seen=new Map();
@@ -311,7 +311,10 @@ test('about/privacy use slash canonical policy and sitemap lastmod reflects dail
  const entries=[...xml.matchAll(/<url>(.*?)<\/url>/g)].map(m=>m[1]);
  for(const entry of entries){assert.equal((entry.match(/<lastmod>/g)||[]).length,1);const value=entry.match(/<lastmod>(.*?)<\/lastmod>/)[1];assert.ok(Number.isFinite(Date.parse(value)));}
  for(const path of ['/','/answers/','/answers/today/','/answers/'+date+'/'])assert.ok(xml.includes('<loc>https://krillion-unlimited.app'+path+'</loc><lastmod>'+date+'</lastmod>'));
- const {lastModified}=await import('../src/content-updates.mjs');assert.equal(lastModified('/about/','2026-11-02',[]),'2026-11-01');
+ const {lastModified,PAGE_DATES}=await import('../src/content-updates.mjs');assert.equal(lastModified('/about/','2026-11-02',[]),'2026-11-01');
+ assert.equal(lastModified('/categories/','2026-11-02',[]),PAGE_DATES['/categories/']);
+ assert.equal(lastModified('/prompts/','2026-11-02',[]),PAGE_DATES['/prompts/']);
+ assert.notEqual(lastModified('/how-to-play/','2026-11-02',[]),'2026-11-02');
  app.env.DB.close();
 });
 
@@ -367,3 +370,42 @@ test('sufficient recorded browser choices actually feed snapshot scoring without
  assert.equal(p.answers.find(a=>a.answer==='Sunday').tier,'krillion');
  app.env.DB.close();
 });
+
+test('every published prompt has category, sibling and prompts-index inbound paths',async()=>{
+ const {categories}=await import('../src/site-content.mjs');
+ const {promptPages,promptContent,promptIndex,siblingPrompts,categoryRecord,promptSlug}=await import('../src/prompt-pages.mjs');
+ const indexHtml=promptIndex();
+ const inbound=new Map(promptPages.map(p=>[p.prompt.id,new Set()]));
+ for(const page of promptPages){
+  assert.ok(indexHtml.includes(page.path),page.path+' missing from /prompts/');
+  inbound.get(page.prompt.id).add('prompts-index');
+  const category=categoryRecord(page.prompt);
+  assert.ok(category,page.prompt.id+' missing category page');
+  const siblings=siblingPrompts(page.prompt,2);
+  assert.ok(siblings.length>=2,page.prompt.id+' needs ≥2 siblings');
+  const html=promptContent(page.prompt);
+  assert.ok(html.includes(`/categories/${category.slug}/`),page.prompt.id+' missing category link');
+  for(const sib of siblings){
+   assert.ok(html.includes(`/prompts/${promptSlug(sib)}/`),page.prompt.id+' missing sibling '+sib.id);
+   inbound.get(sib.id).add(page.prompt.id);
+  }
+ }
+ for(const c of categories){
+  const {categoryContent}=await import('../src/site-content.mjs');
+  const html=categoryContent(c.slug);
+  for(const id of c.ids){
+   const page=promptPages.find(p=>p.prompt.id===id);
+   assert.ok(page,id+' not published');
+   assert.ok(html.includes(page.path),page.path+' missing from /categories/'+c.slug+'/');
+   inbound.get(id).add('category:'+c.slug);
+  }
+ }
+ for(const page of promptPages){
+  const sources=inbound.get(page.prompt.id);
+  assert.ok(sources.has('prompts-index'));
+  assert.ok([...sources].some(s=>s.startsWith('category:')));
+  assert.ok([...sources].filter(s=>!s.startsWith('category:')&&s!=='prompts-index').length>=2,page.prompt.id+' inbound='+[...sources]);
+  assert.ok(sources.size>=3,page.prompt.id+' sources='+[...sources]);
+ }
+});
+
