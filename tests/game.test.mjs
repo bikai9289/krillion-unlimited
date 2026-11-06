@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import worker, { validateReference } from '../src/worker.mjs';
 import { DEMO } from '../src/demo.mjs';
 import { PRACTICE_BANK, dailyPuzzle } from '../src/practice.mjs';
@@ -13,10 +13,8 @@ import { sitemapPaths } from '../src/site-content.mjs';
 
 function database(){
   const db=new DatabaseSync(':memory:');
-  db.exec(readFileSync(new URL('../migrations/0001_initial.sql',import.meta.url),'utf8'));
-  db.exec(readFileSync(new URL('../migrations/0002_pause.sql',import.meta.url),'utf8'));
-  db.exec(readFileSync(new URL('../migrations/0003_practice_puzzles.sql',import.meta.url),'utf8'));
-  db.exec(readFileSync(new URL('../migrations/0004_daily_archives.sql',import.meta.url),'utf8'));
+  const dir=new URL('../migrations/',import.meta.url);
+  for(const file of readdirSync(dir).filter(name=>name.endsWith('.sql')).sort())db.exec(readFileSync(new URL(file,dir),'utf8'));
   const prepare=sql=>({
     bind(...args){
       const s=db.prepare(sql);
@@ -31,7 +29,22 @@ function database(){
   });
   return{prepare,async batch(statements){db.exec('BEGIN');try{const r=[];for(const s of statements)r.push(await s.run());db.exec('COMMIT');return r}catch(e){db.exec('ROLLBACK');throw e}},close:()=>db.close()};
 }
-function service(){const env={DB:database(),BUCKET:{put:async()=>{},get:async()=>null},LOCAL_DEVELOPMENT:'true',REFERENCE_SYNC:'false',ASSETS:{fetch:async()=>new Response('not found',{status:404})}};let cookie='';return{env,async call(path,data,extra={}){const r=await worker.fetch(new Request('http://localhost:3051'+path,{...(data===undefined?{}:{method:'POST',body:JSON.stringify(data),headers:{'Content-Type':'application/json','Cookie':cookie,...extra}}),...(data===undefined?{headers:{Cookie:cookie,...extra}}:{})}),env,{});if(r.headers.get('Set-Cookie'))cookie=r.headers.get('Set-Cookie').split(';')[0];return{status:r.status,body:await r.json()}},cookie:()=>cookie};}
+function memoryBucket(){
+  const objects=new Map();
+  return {
+    async put(key,value){
+      const text=typeof value==='string'?value:await new Response(value).text();
+      objects.set(key,{text});
+    },
+    async get(key){
+      const object=objects.get(key);
+      if(!object)return null;
+      return {async json(){return JSON.parse(object.text)},async text(){return object.text}};
+    },
+    async delete(key){objects.delete(key);},
+  };
+}
+function service(){const env={DB:database(),BUCKET:memoryBucket(),LOCAL_DEVELOPMENT:'true',REFERENCE_SYNC:'false',ASSETS:{fetch:async()=>new Response('not found',{status:404})}};let cookie='';return{env,async call(path,data,extra={}){const r=await worker.fetch(new Request('http://localhost:3051'+path,{...(data===undefined?{}:{method:'POST',body:JSON.stringify(data),headers:{'Content-Type':'application/json','Cookie':cookie,...extra}}),...(data===undefined?{headers:{Cookie:cookie,...extra}}:{})}),env,{});if(r.headers.get('Set-Cookie'))cookie=r.headers.get('Set-Cookie').split(';')[0];return{status:r.status,body:await r.json()}},cookie:()=>cookie};}
 
 test('New York reset follows DST rather than device midnight',()=>{
   assert.equal(etDate(Date.parse('2026-10-17T03:59:59Z')),'2026-10-16');
@@ -409,3 +422,33 @@ test('every published prompt has category, sibling and prompts-index inbound pat
  }
 });
 
+
+test('production caches keep observation and sitemap aggregates across source-table deletes',async()=>{
+ const {loadObservations}=await import('../src/rarity.mjs');
+ const app=service();
+ app.env.LOCAL_DEVELOPMENT='false';
+ const p=PRACTICE_BANK[0];
+ const id=crypto.randomUUID(),player=crypto.randomUUID();
+ await app.env.DB.prepare('INSERT INTO runs(id,player,date,mode,round_start,created_at,completed) VALUES(?,?,?,?,?,?,?)').bind(id,player,etDate(),'practice',null,Date.now(),1).run();
+ await app.env.DB.prepare('INSERT INTO run_puzzles(run_id,content) VALUES(?,?)').bind(id,JSON.stringify({prompts:Array.from({length:7},()=>p)})).run();
+ await app.env.DB.prepare('INSERT INTO answers(run_id,round,raw_answer,answer,tier,score,created_at) VALUES(?,?,?,?,?,?,?)').bind(id,0,p.answers[0].answer,p.answers[0].answer,p.answers[0].tier,TIERS[p.answers[0].tier].score,Date.now()).run();
+ const first=await loadObservations(app.env);
+ assert.equal(first.filter(r=>r.promptId===p.id).reduce((n,r)=>n+Number(r.count),0),1);
+ const sitemap=await worker.fetch(new Request('https://krillion-unlimited.app/sitemap.xml'),app.env,{});
+ assert.equal(sitemap.status,200);
+ const xml=await sitemap.text();
+ assert.ok(xml.includes('<urlset'));
+ await app.env.DB.prepare('DELETE FROM answers').bind().run();
+ await app.env.DB.prepare('DELETE FROM run_puzzles').bind().run();
+ await app.env.DB.prepare('DELETE FROM runs').bind().run();
+ const cached=await loadObservations(app.env);
+ assert.equal(cached.filter(r=>r.promptId===p.id).reduce((n,r)=>n+Number(r.count),0),1);
+ const cachedMap=await worker.fetch(new Request('https://krillion-unlimited.app/sitemap.xml'),app.env,{});
+ assert.equal(cachedMap.status,200);
+ assert.equal(await cachedMap.text(),xml);
+ const dev=service();
+ const empty=await loadObservations(dev.env);
+ assert.equal(empty.length,0);
+ dev.env.DB.close();
+ app.env.DB.close();
+});

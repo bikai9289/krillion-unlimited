@@ -1,4 +1,5 @@
-import {scoreFromObservations,loadObservations,observedPrompt} from './rarity.mjs';
+import {scoreFromObservations,loadObservations,observedPrompt,refreshObservationCache} from './rarity.mjs';
+import {SITEMAP_PROMPT_MTIME_KEY,STATS_CACHE_TTL_MS,loadOrRefreshStatsCache,writeStatsCache} from './stats-cache.mjs';
 import {lastModified} from './content-updates.mjs';
 import {archivePage,todayHub,archiveIndex,validDate} from './answer-archives.mjs';
 import {promptPages,renderPromptPage,hydrateHomepage,breadcrumbs} from './prompt-pages.mjs';
@@ -18,6 +19,28 @@ function headers(response, additional = {}) {
   for (const [k, v] of Object.entries({ 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin', 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()', 'X-Frame-Options': 'SAMEORIGIN', ...additional })) h.set(k, v);
   return new Response(response.body, { status: response.status, headers: h });
 }
+
+const SITEMAP_PROMPT_SQL=`SELECT json_extract(p.value,'$.id') AS id,MAX(a.created_at) AS updated
+          FROM answers a JOIN runs r ON r.id=a.run_id JOIN run_puzzles rp ON rp.run_id=r.id
+          JOIN json_each(rp.content,'$.prompts') p ON CAST(p.key AS INTEGER)=a.round
+          WHERE r.completed=1 GROUP BY json_extract(p.value,'$.id')`;
+async function computeSitemapPromptMtimes(env){
+  const rows=(await env.DB.prepare(SITEMAP_PROMPT_SQL).all()).results;
+  return rows.map(r=>[r.id,new Date(r.updated).toISOString()]);
+}
+export async function refreshSitemapPromptMtimes(env){
+  const entries=await computeSitemapPromptMtimes(env);
+  await writeStatsCache(env,SITEMAP_PROMPT_MTIME_KEY,entries);
+  return entries;
+}
+async function sitemapPromptMtimes(env){
+  try{
+    return new Map(await loadOrRefreshStatsCache(env,SITEMAP_PROMPT_MTIME_KEY,()=>computeSitemapPromptMtimes(env),STATS_CACHE_TTL_MS));
+  }catch(error){
+    console.error('sitemap prompt mtimes failed:',error.message);
+    return new Map();
+  }
+}
 export function validateReference(today, reveal, date) {
   if (today?.date !== date || reveal?.date !== date || today.prompts?.length !== 7 || reveal.prompts?.length !== 7) throw new Error('Reference puzzle date or round count mismatch');
   return { date, dayNumber: today.dayNumber, source: 'Reference snapshot from krillion.io', prompts: today.prompts.map(p => {
@@ -27,21 +50,46 @@ export function validateReference(today, reveal, date) {
   }) };
 }
 export async function syncPuzzle(){throw new Error('Official reference synchronization is disabled. This service uses its own question bank.');}
+function generatedDaily(date){
+  return dailyPuzzle({ ...DEMO, date, dayNumber: Math.floor((Date.parse(date) - Date.parse('2026-07-16')) / 86400000) + 1 });
+}
 async function puzzleFor(env, date) {
-  const archived=await env.DB.prepare('SELECT content FROM daily_archives WHERE date=?').bind(date).first();
-  if(archived)return JSON.parse(archived.content);
-  const row = await env.DB.prepare('SELECT content FROM puzzles WHERE date=?').bind(date).first();
-  const stored=row?JSON.parse(row.content):null;
-  let puzzle=stored&&/Independent (starter bank|question bank)|OpenKrillion sample bank/.test(stored.source||'')?stored:dailyPuzzle({ ...DEMO, date, dayNumber: Math.floor((Date.parse(date) - Date.parse('2026-07-16')) / 86400000) + 1 });
+  try{
+    const archived=await env.DB.prepare('SELECT content FROM daily_archives WHERE date=?').bind(date).first();
+    if(archived)return JSON.parse(archived.content);
+  }catch(error){
+    console.error('daily archive read failed:',error.message);
+    return generatedDaily(date);
+  }
+  let puzzle;
+  try{
+    const row = await env.DB.prepare('SELECT content FROM puzzles WHERE date=?').bind(date).first();
+    const stored=row?JSON.parse(row.content):null;
+    puzzle=stored&&/Independent (starter bank|question bank)|OpenKrillion sample bank/.test(stored.source||'')?stored:generatedDaily(date);
+  }catch(error){
+    console.error('stored puzzle read failed:',error.message);
+    puzzle=generatedDaily(date);
+  }
   if(date===etDate()){
-    puzzle=await scoreFromObservations(env,puzzle);
-    await env.DB.prepare('INSERT OR IGNORE INTO daily_archives(date,content) VALUES(?,?)').bind(date,JSON.stringify(puzzle)).run();
-    const saved=await env.DB.prepare('SELECT content FROM daily_archives WHERE date=?').bind(date).first();
-    return JSON.parse(saved.content);
+    try{
+      puzzle=await scoreFromObservations(env,puzzle);
+      await env.DB.prepare('INSERT OR IGNORE INTO daily_archives(date,content) VALUES(?,?)').bind(date,JSON.stringify(puzzle)).run();
+      const saved=await env.DB.prepare('SELECT content FROM daily_archives WHERE date=?').bind(date).first();
+      if(saved)return JSON.parse(saved.content);
+    }catch(error){
+      console.error('today observation scoring failed:',error.message);
+    }
   }
   return puzzle;
 }
-async function archivedDates(env){return (await env.DB.prepare('SELECT date FROM daily_archives WHERE date<=? ORDER BY date DESC').bind(etDate()).all()).results.map(r=>r.date);}
+async function archivedDates(env){
+  try{
+    return (await env.DB.prepare('SELECT date FROM daily_archives WHERE date<=? ORDER BY date DESC').bind(etDate()).all()).results.map(r=>r.date);
+  }catch(error){
+    console.error('archivedDates failed:',error.message);
+    return [];
+  }
+}
 async function saveSample(env, puzzle) {
   if (puzzle.sample) await env.DB.prepare('INSERT OR IGNORE INTO puzzles(date,day_number,source,content) VALUES(?,?,?,?)').bind(puzzle.date, puzzle.dayNumber, puzzle.source, JSON.stringify(puzzle)).run();
 }
@@ -118,7 +166,11 @@ async function api(request, env, url) {
     if (!run) {
       const rid = crypto.randomUUID();
       {
-        const selected = mode === 'practice' ? await scoreFromObservations(env,practicePuzzle(puzzle)) : puzzle;
+        let selected = puzzle;
+        if (mode === 'practice') {
+          try { selected = await scoreFromObservations(env,practicePuzzle(puzzle)); }
+          catch (error) { console.error('practice observation scoring failed:',error.message); selected = practicePuzzle(puzzle); }
+        }
         await env.DB.prepare('INSERT INTO run_puzzles(run_id,content) VALUES(?,?)').bind(rid, JSON.stringify(selected)).run();
       }
       await env.DB.prepare('INSERT OR IGNORE INTO runs(id,player,date,mode,round_start,created_at) VALUES(?,?,?,?,?,?)').bind(rid, id, date, mode, data.ready === true ? null : Date.now() + PREVIEW_MS, Date.now()).run();
@@ -202,7 +254,8 @@ export default {
       }
       const promptPage=promptPages.find(p=>p.path===requested);
       if(promptPage){
-        const rows=await loadObservations(env);
+        let rows=[];
+        try{rows=await loadObservations(env);}catch(error){console.error('prompt observation load failed:',error.message);}
         const scored=observedPrompt(promptPage.prompt,rows);
         const totals=new Map();
         if(scored.rarity.method==='observed')for(const row of rows.filter(r=>r.promptId===scored.id&&r.promptText===scored.text)){
@@ -233,11 +286,7 @@ export default {
       }
       if (url.pathname === '/robots.txt') return headers(new Response('User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: https://krillion-unlimited.app/sitemap.xml\n',{headers:{'Content-Type':'text/plain; charset=utf-8'}}));
       if(url.pathname==='/sitemap.xml'){
-        const rows=(await env.DB.prepare(`SELECT json_extract(p.value,'$.id') AS id,MAX(a.created_at) AS updated
-          FROM answers a JOIN runs r ON r.id=a.run_id JOIN run_puzzles rp ON rp.run_id=r.id
-          JOIN json_each(rp.content,'$.prompts') p ON CAST(p.key AS INTEGER)=a.round
-          WHERE r.completed=1 GROUP BY json_extract(p.value,'$.id')`).all()).results;
-        const modified=new Map(rows.map(r=>[r.id,new Date(r.updated).toISOString()]));
+        const modified=await sitemapPromptMtimes(env);
         const xml='<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+allPaths.map(p=>`<url><loc>${SITE.origin}${p}</loc><lastmod>${lastModified(p,etDate(),promptPages,modified)}</lastmod></url>`).join('')+'</urlset>';
         return headers(new Response(request.method==='HEAD'?null:xml,{headers:{'Content-Type':'application/xml; charset=utf-8','Cache-Control':'no-store'}}));
       }
@@ -255,5 +304,5 @@ export default {
       return headers(asset, asset.ok ? { 'Cache-Control': url.pathname.endsWith('.woff2') ? 'public, max-age=31536000, immutable' : 'public, max-age=300' } : {});
     } catch (e) { console.error('Request failed:',e.message); return headers(fail('The signal is temporarily lost. Please retry.',503)); }
   },
-  async scheduled(event,env,ctx) {ctx.waitUntil(puzzleFor(env,etDate()));},
+  async scheduled(event,env,ctx) {ctx.waitUntil((async()=>{await refreshObservationCache(env);await refreshSitemapPromptMtimes(env);await puzzleFor(env,etDate());})());},
 };
