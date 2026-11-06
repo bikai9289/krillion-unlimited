@@ -1,3 +1,4 @@
+import {savedArchive,readArchiveMirror,mirrorSavedArchives} from './archive-store.mjs';
 import {scoreFromObservations,loadObservations,observedPrompt,refreshObservationCache} from './rarity.mjs';
 import {SITEMAP_PROMPT_MTIME_KEY,STATS_CACHE_TTL_MS,loadOrRefreshStatsCache,writeStatsCache} from './stats-cache.mjs';
 import {lastModified} from './content-updates.mjs';
@@ -55,8 +56,8 @@ function generatedDaily(date){
 }
 async function puzzleFor(env, date) {
   try{
-    const archived=await env.DB.prepare('SELECT content FROM daily_archives WHERE date=?').bind(date).first();
-    if(archived)return JSON.parse(archived.content);
+    const archived=await savedArchive(env,date);
+    if(archived)return archived;
   }catch(error){
     console.error('daily archive read failed:',error.message);
     return generatedDaily(date);
@@ -73,16 +74,23 @@ async function puzzleFor(env, date) {
   if(date===etDate()){
     try{
       puzzle=await scoreFromObservations(env,puzzle);
+    }catch(error){console.error('today observation scoring failed:',error.message);}
+    try{
       await env.DB.prepare('INSERT OR IGNORE INTO daily_archives(date,content) VALUES(?,?)').bind(date,JSON.stringify(puzzle)).run();
       const saved=await env.DB.prepare('SELECT content FROM daily_archives WHERE date=?').bind(date).first();
-      if(saved)return JSON.parse(saved.content);
+      if(saved){
+        try{await mirrorSavedArchives(env);}catch(error){console.error('archive mirror write failed:',error.message);}
+        return JSON.parse(saved.content);
+      }
     }catch(error){
-      console.error('today observation scoring failed:',error.message);
+      console.error('today archive persistence failed:',error.message);
     }
   }
   return puzzle;
 }
 async function archivedDates(env){
+  const mirror=await readArchiveMirror(env);
+  if(mirror)return Object.keys(mirror).filter(date=>date<=etDate()).sort().reverse();
   try{
     return (await env.DB.prepare('SELECT date FROM daily_archives WHERE date<=? ORDER BY date DESC').bind(etDate()).all()).results.map(r=>r.date);
   }catch(error){
@@ -272,9 +280,9 @@ export default {
       const dated=requested.match(/^\/answers\/([^/]+)\/?$/);
       if(dated&&dated[1]!=='today'){
         if(!validDate(dated[1])||dated[1]>etDate())return headers(fail('Saved answer edition not found.',404));
-        const row=await env.DB.prepare('SELECT content FROM daily_archives WHERE date=?').bind(dated[1]).first();
-        if(!row)return headers(fail('Saved answer edition not found.',404));
-        return headers(new Response(request.method==='HEAD'?null:archivePage(JSON.parse(row.content),dates,env),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}}));
+        const puzzle=await savedArchive(env,dated[1]);
+        if(!puzzle)return headers(fail('Saved answer edition not found.',404));
+        return headers(new Response(request.method==='HEAD'?null:archivePage(puzzle,dates,env),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}}));
       }
       if(known){
         const assetPath='/site'+(known==='/'?'/':known.replace(/\/$/,'')+'/')+'index.html';
@@ -304,5 +312,9 @@ export default {
       return headers(asset, asset.ok ? { 'Cache-Control': url.pathname.endsWith('.woff2') ? 'public, max-age=31536000, immutable' : 'public, max-age=300' } : {});
     } catch (e) { console.error('Request failed:',e.message); return headers(fail('The signal is temporarily lost. Please retry.',503)); }
   },
-  async scheduled(event,env,ctx) {ctx.waitUntil((async()=>{await refreshObservationCache(env);await refreshSitemapPromptMtimes(env);await puzzleFor(env,etDate());})());},
+  async scheduled(event,env,ctx) {ctx.waitUntil((async()=>{
+    await puzzleFor(env,etDate());
+    const results=await Promise.allSettled([mirrorSavedArchives(env),refreshObservationCache(env),refreshSitemapPromptMtimes(env)]);
+    for(const result of results)if(result.status==='rejected')console.error('scheduled maintenance failed:',result.reason?.message);
+  })());},
 };

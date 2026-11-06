@@ -452,3 +452,38 @@ test('production caches keep observation and sitemap aggregates across source-ta
  dev.env.DB.close();
  app.env.DB.close();
 });
+
+test('saved answer editions survive total D1 outage without fabricating missing history',async()=>{
+ const {mirrorSavedArchives}=await import('../src/archive-store.mjs');
+ const app=service();const date=etDate();
+ const puzzle={...dailyPuzzle({...DEMO,date}),date};
+ await app.env.DB.prepare('INSERT INTO daily_archives(date,content) VALUES(?,?)').bind(date,JSON.stringify(puzzle)).run();
+ await mirrorSavedArchives(app.env);
+ const database=app.env.DB;let queries=0;
+ app.env.DB={prepare(){queries++;throw new Error('D1 daily read limit exceeded');}};
+ try{
+  for(const path of ['/answers/','/answers/today/','/answers/'+date+'/','/sitemap.xml']){
+   const response=await worker.fetch(new Request('https://krillion-unlimited.app'+path),app.env,{});
+   assert.equal(response.status,200,path);const html=await response.text();
+   assert.ok(html.includes('/answers/'+date+'/'),path);
+   if(path==='/answers/'+date+'/'){
+    assert.equal((html.match(/class="daily-prompt"/g)||[]).length,7);
+    for(const p of puzzle.prompts)for(const a of p.answers)assert.ok(html.includes(a.answer.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')));
+   }
+  }
+  // Sitemap aggregates can attempt D1 once; archive reads themselves cannot.
+  const before=queries;
+  for(const path of ['/answers/2026-02-30/','/answers/2020-01-01/'])assert.equal((await worker.fetch(new Request('https://krillion-unlimited.app'+path),app.env,{})).status,404);
+  assert.equal(queries,before);
+  const head=await worker.fetch(new Request('https://krillion-unlimited.app/answers/'+date+'/',{method:'HEAD'}),app.env,{});
+  assert.equal(head.status,200);assert.equal(await head.text(),'');
+ }finally{database.close();}
+});
+
+test('cron archives today even when statistics refresh fails',async()=>{
+ const app=service();const database=app.env.DB;
+ app.env.DB={...database,prepare(sql){if(sql.includes('WITH candidates')||sql.includes('MAX(a.created_at)'))throw new Error('statistics unavailable');return database.prepare(sql);}};
+ const pending=[];await worker.scheduled({},app.env,{waitUntil:p=>pending.push(p)});await Promise.all(pending);
+ const {readArchiveMirror}=await import('../src/archive-store.mjs');
+ assert.ok((await readArchiveMirror(app.env))[etDate()]);database.close();
+});
