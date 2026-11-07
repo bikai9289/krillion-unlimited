@@ -7,20 +7,20 @@ try {
  const page=await context.newPage();
  const slugs=['terms','contact','disclaimer','privacy','about'];
  for(const slug of slugs){
-  const response=await page.goto(`${base}/${slug}/`);
+  const response=await page.goto(`${base}/${slug}/`,{waitUntil:"domcontentloaded"});
   assert.equal(response.status(),200,slug);
   assert.equal(await page.locator('h1').count(),1);
   assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'),`https://krillion-unlimited.app/${slug}/`);
   for(const target of slugs)assert.ok(await page.locator(`footer a[href="/${target}/"]`).count(),`${slug} footer ${target}`);
  }
- await page.goto(base+'/privacy/');
+ await page.goto(base+'/privacy/',{waitUntil:'domcontentloaded'});
  assert.ok(await page.getByRole('heading',{name:'Advertising and cookies'}).count());
  assert.ok(await page.locator('a[href="https://adssettings.google.com/"]').count());
- await page.goto(base+'/contact/');
+ await page.goto(base+'/contact/',{waitUntil:'domcontentloaded'});
  assert.ok((await page.locator('main').innerText()).includes('A public support email is not available yet.'));
  await page.setViewportSize({width:390,height:844});
- for(const slug of slugs){await page.goto(`${base}/${slug}/`);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
+ for(const slug of slugs){await page.goto(`${base}/${slug}/`,{waitUntil:"domcontentloaded"});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
  const xml=await(await page.request.get(base+'/sitemap.xml')).text();
  for(const slug of slugs)assert.ok(xml.includes(`<loc>https://krillion-unlimited.app/${slug}/</loc><lastmod>2026-11-07</lastmod>`));
- console.log('Compliance pages: no-JS HTML, canonicals, legal footer, advertising choices, mobile layout and sitemap passed. Contact mailbox and ads.txt remain pending real configuration.');
+ console.log('Compliance pages: no-JS HTML, canonicals, legal footer, advertising choices, mobile layout and sitemap passed. Contact mailbox remains pending configuration.');
 } finally {await browser.close();}
