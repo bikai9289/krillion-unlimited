@@ -195,8 +195,8 @@ test('sitemap covers dedicated canonical landing pages and redirects slash varia
  const app=service();
  const response=await worker.fetch(new Request('https://krillion-unlimited.app/sitemap.xml'),app.env,{});
  const xml=await response.text();
- assert.equal(sitemapPaths.length,17);
- assert.equal(new Set(sitemapPaths).size,17);
+ assert.equal(sitemapPaths.length,20);
+ assert.equal(new Set(sitemapPaths).size,20);
  for(const path of sitemapPaths)assert.ok(xml.includes(`<loc>https://krillion-unlimited.app${path}</loc>`));
  const redirect=await worker.fetch(new Request('https://krillion-unlimited.app/how-to-play'),app.env,{});
  assert.equal(redirect.status,301);
@@ -315,7 +315,7 @@ test('bank has unique prompts and core categories have ten entries with a three-
 
 test('about/privacy use slash canonical policy and sitemap lastmod reflects daily versus editorial changes',async()=>{
  const app=service();
- for(const slug of ['about','privacy']){
+ for(const slug of ['about','privacy','terms','contact','disclaimer']){
   const r=await worker.fetch(new Request('https://krillion-unlimited.app/'+slug),app.env,{});
   assert.equal(r.status,301);assert.equal(r.headers.get('Location'),'https://krillion-unlimited.app/'+slug+'/');
   assert.ok(sitemapPaths.includes('/'+slug+'/'));assert.ok(!sitemapPaths.includes('/'+slug));
@@ -324,7 +324,7 @@ test('about/privacy use slash canonical policy and sitemap lastmod reflects dail
  const entries=[...xml.matchAll(/<url>(.*?)<\/url>/g)].map(m=>m[1]);
  for(const entry of entries){assert.equal((entry.match(/<lastmod>/g)||[]).length,1);const value=entry.match(/<lastmod>(.*?)<\/lastmod>/)[1];assert.ok(Number.isFinite(Date.parse(value)));}
  for(const path of ['/','/answers/','/answers/today/','/answers/'+date+'/'])assert.ok(xml.includes('<loc>https://krillion-unlimited.app'+path+'</loc><lastmod>'+date+'</lastmod>'));
- const {lastModified,PAGE_DATES}=await import('../src/content-updates.mjs');assert.equal(lastModified('/about/','2026-11-02',[]),'2026-11-01');
+ const {lastModified,PAGE_DATES}=await import('../src/content-updates.mjs');assert.equal(lastModified('/about/','2026-11-08',[]),'2026-11-07');
  assert.equal(lastModified('/categories/','2026-11-02',[]),PAGE_DATES['/categories/']);
  assert.equal(lastModified('/prompts/','2026-11-02',[]),PAGE_DATES['/prompts/']);
  assert.notEqual(lastModified('/how-to-play/','2026-11-02',[]),'2026-11-02');

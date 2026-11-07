@@ -1,8 +1,8 @@
 {
   "name": "Krillion Unlimited",
-  "words": 404,
+  "words": 407,
   "krillion": 6,
-  "density": 1.4851485148514851,
+  "density": 1.4742014742014742,
   "documents": [
     "/llms.txt",
     "/pricing.md",
@@ -31,6 +31,9 @@
     "/categories/sports/",
     "/categories/science/",
     "/about/",
+    "/terms/",
+    "/contact/",
+    "/disclaimer/",
     "/privacy/",
     "/prompts/name-a-way-to-prepare-potatoes/",
     "/prompts/name-an-animal-whose-name-is-exactly-four-letters-long/",
@@ -139,5 +142,5 @@
     "/prompts/name-one-of-the-five-main-layers-of-the-atmosphere-by-temperature/",
     "/prompts/name-a-taxonomic-rank-from-kingdom-to-species/"
   ],
-  "indexablePages": 123
+  "indexablePages": 126
 }

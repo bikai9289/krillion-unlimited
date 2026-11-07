@@ -1,6 +1,6 @@
 ---
 title: "privacy"
-date: "2026-11-01"
+date: "2026-11-07"
 ---
 
 ## Browser storage and the essential cookie
@@ -17,7 +17,7 @@ If feedback is submitted, the service can store it with the random identifier an
 
 ## Hosting and third parties
 
-Cloudflare hosts the game. Fonts may be requested from Google Fonts. No third-party analytics scripts are loaded by the current game interface. No official reference service receives your answers, and official puzzle synchronization is not used.
+Cloudflare hosts the game. Fonts may be requested from Google Fonts. If third-party advertising or analytics is enabled, those providers may process browser and usage data as described below. No official reference service receives your answers, and official puzzle synchronization is not used.
 
 ## Retention and control
 
@@ -29,3 +29,13 @@ Completed game records remain in the service for history and ranking calculation
 ## Aggregate answer frequencies
 
 The server can count accepted choices from completed dives over 30 days, using at most one choice per random browser identifier and prompt. This derives aggregates from the game records already described above. Observed scoring and public aggregate figures require at least 100 browser choices. Repeated practice by one browser does not count as extra independent choices. No raw browser identifier is published.
+
+
+## Advertising and cookies
+
+Third-party vendors, including Google, may use cookies to serve ads based on your prior visits to this website or other websites. Google advertising cookies enable Google and its partners to serve personalized ads. This describes possible advertising use; it does not mean advertising is currently enabled.
+
+You can turn off personalized Google advertising in [Google Ads Settings](https://adssettings.google.com/). You can also visit [aboutads.info](https://www.aboutads.info/choices/) to opt out of personalized advertising by participating third-party vendors. Browser cookie controls can restrict cookies; these advertising choices do not delete essential game cookies or server-held records.
+
+
+[Back to the game](/) | [About](/about/) | [Terms](/terms/) | [Contact](/contact/) | [Disclaimer](/disclaimer/) | [Privacy](/privacy/)
