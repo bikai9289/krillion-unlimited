@@ -1,9 +1,9 @@
 ---
 title: "contact"
-date: "2026-11-07"
+date: "2026-11-09"
 ---
 
-A public support email is not available yet. Direct email submissions for the topics below are not currently available. Please do not send messages to an unconfirmed address.
+Email us at [bikai9289@gmail.com](mailto:bikai9289@gmail.com) for game issues, answer corrections, partnerships and privacy requests. Please use a subject that describes your request and include only the details needed to help.
 
 ## Bug reports
 

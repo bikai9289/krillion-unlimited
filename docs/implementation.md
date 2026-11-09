@@ -11,7 +11,7 @@ The approved concept 03 is now the live homepage, served by src/html.mjs with ma
 - Refresh restores ready, active, landed and completed states. Local storage contains a run pointer, drafts and completed history; server holds authoritative scores.
 - Answers support rejection and correction confirmation. Passing and timeout score zero. All seven rounds must complete before review is available.
 - Help, logbook and rankings pause the active server deadline and resume when closed.
-- Rankings use completed server runs, one best per browser in each UTC period.
+- Rankings use completed server runs across Daily and Unlimited, one best per browser in each UTC period, attributed by run start time (`runs.created_at`), not completion time.
 - Reference synchronization and third-party analytics remain disabled by default.
 
 Local: npm ci; npm run build; npm run db:local; npm run dev

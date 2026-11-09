@@ -325,7 +325,7 @@ test('about/privacy use slash canonical policy and sitemap lastmod reflects dail
  const entries=[...xml.matchAll(/<url>(.*?)<\/url>/g)].map(m=>m[1]);
  for(const entry of entries){assert.equal((entry.match(/<lastmod>/g)||[]).length,1);const value=entry.match(/<lastmod>(.*?)<\/lastmod>/)[1];assert.ok(Number.isFinite(Date.parse(value)));}
  for(const path of ['/','/answers/','/answers/today/','/answers/'+date+'/'])assert.ok(xml.includes('<loc>https://krillion-unlimited.app'+path+'</loc><lastmod>'+date+'</lastmod>'));
- const {lastModified,PAGE_DATES}=await import('../src/content-updates.mjs');assert.equal(lastModified('/about/','2026-11-08',[]),'2026-11-07');
+ const {lastModified,PAGE_DATES}=await import('../src/content-updates.mjs');assert.equal(lastModified('/about/','2026-11-09',[]),'2026-11-09');
  assert.equal(lastModified('/categories/','2026-11-02',[]),PAGE_DATES['/categories/']);
  assert.equal(lastModified('/prompts/','2026-11-02',[]),PAGE_DATES['/prompts/']);
  assert.notEqual(lastModified('/how-to-play/','2026-11-02',[]),'2026-11-02');
@@ -487,4 +487,15 @@ test('cron archives today even when statistics refresh fails',async()=>{
  const pending=[];await worker.scheduled({},app.env,{waitUntil:p=>pending.push(p)});await Promise.all(pending);
  const {readArchiveMirror}=await import('../src/archive-store.mjs');
  assert.ok((await readArchiveMirror(app.env))[etDate()]);database.close();
+});
+
+
+test('published matching examples remain consistent with configured aliases',()=>{
+ const utilities=PRACTICE_BANK.find(p=>p.id==='games-expanded-10').answers;
+ assert.equal(matchAnswer('electric',utilities)?.answer,'Electric Company');
+ assert.equal(matchAnswer('Water Works',utilities)?.answer,'Water Works');
+ assert.equal(matchAnswer('water',utilities),null);
+ const directions=PRACTICE_BANK.find(p=>p.id==='practice-17').answers;
+ for(const abbreviation of ['N','S','E','W'])assert.equal(matchAnswer(abbreviation,directions),null);
+ for(const answer of directions)assert.equal(matchAnswer(answer.answer,directions)?.answer,answer.answer);
 });
