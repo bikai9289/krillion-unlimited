@@ -3,6 +3,7 @@
 export const CONTENT_UPDATED = '2026-11-01';
 // Per-path overrides: only bump a URL when that page’s content actually changed.
 export const PAGE_DATES = {
+  '/answer-matching-guide/': '2026-11-09',
   '/terms/': '2026-11-07',
   '/contact/': '2026-11-07',
   '/disclaimer/': '2026-11-07',

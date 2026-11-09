@@ -195,8 +195,9 @@ test('sitemap covers dedicated canonical landing pages and redirects slash varia
  const app=service();
  const response=await worker.fetch(new Request('https://krillion-unlimited.app/sitemap.xml'),app.env,{});
  const xml=await response.text();
- assert.equal(sitemapPaths.length,20);
- assert.equal(new Set(sitemapPaths).size,20);
+ assert.equal(sitemapPaths.length,21);
+ assert.ok(sitemapPaths.includes('/answer-matching-guide/'));
+ assert.equal(new Set(sitemapPaths).size,21);
  for(const path of sitemapPaths)assert.ok(xml.includes(`<loc>https://krillion-unlimited.app${path}</loc>`));
  const redirect=await worker.fetch(new Request('https://krillion-unlimited.app/how-to-play'),app.env,{});
  assert.equal(redirect.status,301);
