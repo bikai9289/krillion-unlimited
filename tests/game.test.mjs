@@ -46,6 +46,54 @@ function memoryBucket(){
 }
 function service(){const env={DB:database(),BUCKET:memoryBucket(),LOCAL_DEVELOPMENT:'true',REFERENCE_SYNC:'false',ASSETS:{fetch:async()=>new Response('not found',{status:404})}};let cookie='';return{env,async call(path,data,extra={}){const r=await worker.fetch(new Request('http://localhost:3051'+path,{...(data===undefined?{}:{method:'POST',body:JSON.stringify(data),headers:{'Content-Type':'application/json','Cookie':cookie,...extra}}),...(data===undefined?{headers:{Cookie:cookie,...extra}}:{})}),env,{});if(r.headers.get('Set-Cookie'))cookie=r.headers.get('Set-Cookie').split(';')[0];return{status:r.status,body:await r.json()}},cookie:()=>cookie};}
 
+test('first archive write failure preserves playable snapshots, logs and recovers',async()=>{
+ const app=service(),db=app.env.DB,errors=[];
+ const originalError=console.error;console.error=(...args)=>errors.push(args.join(' '));
+ app.env.DB={...db,prepare(sql){if(sql.startsWith('INSERT OR IGNORE INTO daily_archives'))throw new Error('injected archive write failure');return db.prepare(sql);}};
+ try{
+  const today=await app.call('/api/today');assert.equal(today.status,200);assert.equal(today.body.prompts.length,7);
+  const started=await app.call('/api/start',{});assert.equal(started.status,200);
+  const state=await app.call('/api/state?run='+started.body.runId);
+  assert.equal(state.status,200);assert.equal(state.body.results.length,0);assert.equal(state.body.prompts.length,7);
+  const saved=await db.prepare('SELECT content FROM run_puzzles WHERE run_id=?').bind(started.body.runId).first();
+  assert.equal(JSON.parse(saved.content).prompts.length,7);
+  assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM daily_archives').first()).n,0);
+  assert.ok(errors.some(e=>e.includes('today archive persistence failed: injected archive write failure')));
+  for(let round=0;round<7;round++){
+   const answer=PRACTICE_BANK.find(p=>p.id===started.body.prompts[round].id).answers[0].answer;
+   const scored=await app.call('/api/answer',{runId:started.body.runId,round,answer,confirm:true});
+   assert.equal(scored.status,200);assert.equal(scored.body.state.results.length,round+1);
+   if(round<6)assert.equal((await app.call('/api/next',{runId:started.body.runId})).status,200);
+  }
+  const completed=await app.call('/api/state?run='+started.body.runId);
+  assert.equal(completed.body.completed,true);
+  assert.equal((await app.call('/api/review?run='+started.body.runId)).status,200);
+  assert.equal((await app.call('/api/review?run='+started.body.runId,undefined,{Cookie:'ok_player='+crypto.randomUUID()})).status,403);
+  assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM daily_archives').first()).n,0);
+  app.env.DB=db;
+  assert.equal((await app.call('/api/today')).status,200);
+  assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM daily_archives').first()).n,1);
+  const restored=await app.call('/api/state?run='+started.body.runId);
+  assert.deepEqual(restored.body.prompts,state.body.prompts);
+  assert.deepEqual(restored.body.results,completed.body.results);
+  assert.equal(restored.body.score,completed.body.score);
+ }finally{console.error=originalError;db.close();}
+});
+
+test('review enforces ownership in the same database with a successful owner control',async()=>{
+ const app=service();
+ try{
+  const {body:game}=await app.call('/api/start',{});const owner=app.cookie();
+  assert.equal((await app.call('/api/review?run='+game.runId)).status,403);
+  await app.env.DB.prepare('UPDATE runs SET completed=1 WHERE id=?').bind(game.runId).run();
+  assert.equal((await app.call('/api/review?run='+game.runId)).status,200);
+  for(const cookie of ['', 'ok_player='+crypto.randomUUID(), 'ok_player=invalid']){
+   assert.equal((await app.call('/api/review?run='+game.runId,undefined,{Cookie:cookie})).status,403);
+  }
+  assert.equal((await app.call('/api/review?run='+game.runId,undefined,{Cookie:owner,'User-Agent':'Mobile'})).status,200);
+ }finally{app.env.DB.close();}
+});
+
 test('New York reset follows DST rather than device midnight',()=>{
   assert.equal(etDate(Date.parse('2026-10-17T03:59:59Z')),'2026-10-16');
   assert.equal(etDate(Date.parse('2026-10-17T04:00:00Z')),'2026-10-17');
@@ -325,7 +373,7 @@ test('about/privacy use slash canonical policy and sitemap lastmod reflects dail
  const entries=[...xml.matchAll(/<url>(.*?)<\/url>/g)].map(m=>m[1]);
  for(const entry of entries){assert.equal((entry.match(/<lastmod>/g)||[]).length,1);const value=entry.match(/<lastmod>(.*?)<\/lastmod>/)[1];assert.ok(Number.isFinite(Date.parse(value)));}
  for(const path of ['/','/answers/','/answers/today/','/answers/'+date+'/'])assert.ok(xml.includes('<loc>https://krillion-unlimited.app'+path+'</loc><lastmod>'+date+'</lastmod>'));
- const {lastModified,PAGE_DATES}=await import('../src/content-updates.mjs');assert.equal(lastModified('/about/','2026-11-09',[]),'2026-11-09');
+ const {lastModified,PAGE_DATES}=await import('../src/content-updates.mjs');assert.equal(lastModified('/about/','2026-11-09',[]),'2026-11-10');
  assert.equal(lastModified('/categories/','2026-11-02',[]),PAGE_DATES['/categories/']);
  assert.equal(lastModified('/prompts/','2026-11-02',[]),PAGE_DATES['/prompts/']);
  assert.notEqual(lastModified('/how-to-play/','2026-11-02',[]),'2026-11-02');
