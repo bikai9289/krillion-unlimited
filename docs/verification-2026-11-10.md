@@ -18,8 +18,10 @@
 
 ## Outstanding
 
-- No production deployment or production browser verification was performed.
+- Production deployment completed for commit `5e62192`, Worker version `db518ebc-f443-4361-873e-f16bbffb4eff`.
+- Production browser verification passed: updated About, Today/date archives, contact, sports, matching guide, sitemap and health returned 200; seven rounds completed and reloaded; owner completed review returned 200, missing/other identity returned 403.
+- The single run created by this release audit and its answers/puzzle snapshot were deleted using its exact locally captured ID. A read-only production query confirmed zero remaining matching runs. Historical FE0A99 and 97D7D6 were not modified.
 - FE0A99 was not deleted: no complete run identifier or matching test record was found in this workspace. `fe0a9934` is a prefix, not the complete 36-character identifier expected by the service.
 - 97D7D6 remains unchanged; its ownership is unknown.
-- No claim of current GSC query/page overlap or production review behavior is made.
+- No claim of current GSC query/page overlap is made.
 - Browser identity cookies have no server-side expiry/revocation mechanism in this change; clearing the cookie is tested as missing identity, not as proof of server-side expiration.
