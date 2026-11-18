@@ -36,17 +36,17 @@ Each Krillion round begins with a three-second preview so you can read before ty
 
 A valid Krillion answer must fit the complete category and match an entry in that puzzle's accepted set. Specificity helps only when the answer still belongs. A Krillion prompt about countries is not asking for a city, and a question about chemical symbols may restrict which elements count. Krillion Unlimited checks answers on its own server against the available puzzle snapshot. If a Krillion response is rejected, you can try another before the timer finishes. Rejection uses time, but it does not automatically turn the whole round into a miss.
 
-## Understanding the six Krillion rarity tiers
+## Understanding the six rarity tiers
 
-Krillion answers occupy six tiers with fixed point values. Plankton earns ten points, Too Clever fifteen, Schooler thirty, Rare sixty, Deep Cut eighty-five, and One in a Krillion one hundred. A blank or unaccepted Krillion answer earns zero. These levels describe the puzzle's prepared answer classifications; they are not a promise about the number of people who will type an answer today. Krillion Unlimited shows your Krillion tier after each accepted submission, along with the points earned and the extra metres added to your descent. The same recognized entry keeps its configured score.
+The six tiers have fixed point values: Plankton 10, Too Clever 15, Schooler 30, Rare 60, Deep Cut 85 and One in a Krillion 100. A pass or an unaccepted answer at the deadline earns zero. An answer’s tier can change between new runs as qualifying observations change. Within a run, the saved answer snapshot fixes the tiers and scores; resuming that run does not recalculate them. Saved Daily editions also keep their original tiers, so their answer guides remain consistent with that edition.
 
-## Why Too Clever is part of Krillion
+## What the Too Clever tier means
 
-The Too Clever tier gives Krillion its particular sense of humor. Sometimes the supposedly obscure answer is exactly the one that many trivia fans reach for. In Krillion, recognizing that trap is part of the challenge. You do not need to pick something implausibly remote, but it helps to move beyond an answer that is famous specifically for sounding unusual. Krillion Unlimited preserves this six-tier Krillion structure. A confident, correct answer can be more rewarding than a complicated guess that falls outside the category, even when the guess initially sounds more impressive.
+Too Clever is the second scoring tier and awards 15 points. In editorial mode, its placement is a prepared game setting, not evidence that players commonly choose that answer. With a qualifying observed sample, a smoothed share of at least 15% but less than 25% maps to this tier. The name is playful; use the displayed scoring method to understand what supports the classification.
 
-## The special One in a Krillion answer
+## What earns One in a Krillion
 
-One in a Krillion is the designated gem of a category. It awards one hundred points, but the reference game's gem is selected partly for the satisfaction of discovering it, rather than obscurity alone. Some Deep Cut entries can therefore be less familiar than the Krillion answer. Think of a Krillion gem as a memorable destination, not the output of a universal rarity survey. When available in the puzzle data, Krillion Unlimited displays a short explanatory detail after landing on that answer. These little facts give the deepest discoveries a reason to stay with you.
+One in a Krillion awards 100 points. In editorial mode, entries receive this tier from the prepared bank. In observed mode, the tier applies to an accepted answer whose smoothed share is below 1%. Observed scoring does not reserve exactly one such answer per question: several answers, or none, can qualify. The tier describes this service’s scoring snapshot, not worldwide knowledge or an official classification from another game.
 
 ## Turning Krillion points into ocean depth
 
@@ -70,7 +70,7 @@ A Krillion result can be compared with completed daily dives recorded on this we
 
 ## Daily Krillion games and the reset
 
-The Krillion daily schedule follows midnight in New York. That corresponds to different UTC hours as daylight saving time changes. Krillion Unlimited uses that same timezone boundary for its Krillion date and next-dive countdown. Everyone on this website sees the same published daily categories, while local midnight on your device does not create a second challenge. Your completed Krillion daily dive remains available for review. Practice lets you explore the format again without changing your daily result. If reference synchronization is unavailable, the site identifies its sample practice content rather than silently promising a fresh official puzzle.
+Daily uses this site’s independent question bank and changes at midnight in America/New_York. That is 04:00 UTC during daylight saving time and 05:00 UTC during standard time. Your device’s local midnight does not start another Daily attempt. Unlimited draws a mixed set each time and does not replace your Daily result. Rankings use separate UTC day and Monday-based week windows, so a ranking window can change before the New York Daily date changes. Check the date and window labels when comparing a saved dive with a ranking.
 
 ## Saving a Krillion history and building a streak
 
@@ -103,4 +103,4 @@ Daily and Unlimited play are free, without credits or checkout. Browse the answe
 
 A prompt needs 100 accepted choices from distinct browser identifiers in completed dives over the preceding 30 days before observed scoring is used. Only the first accepted choice per browser and prompt counts. Rejected attempts, blanks, passes and abandoned dives do not enter that denominator. A browser identifier is not a verified person.
 
-The server applies add-one smoothing to each accepted answer. Shares of at least 25%, 15%, 8%, 3%, and 1% map to the five increasing tiers; below 1% maps to One in a Krillion. Equal shares receive equal tiers. With fewer than 100 choices, explicitly labelled editorial tiers remain in place. A new run snapshots its tiers; existing runs and date archives do not get rescored.
+The server applies add-one smoothing: each accepted answer gets one added choice, and the denominator is the sample size plus the number of accepted entries. Shares of at least 25%, 15%, 8%, 3%, and 1% map to the five increasing tiers; below 1% maps to One in a Krillion. Equal shares receive equal tiers. With fewer than 100 choices, explicitly labelled editorial tiers remain in place. A new run snapshots its tiers; existing runs and date archives do not get rescored.
