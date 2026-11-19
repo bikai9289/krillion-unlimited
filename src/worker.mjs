@@ -1,6 +1,7 @@
 import {savedArchive,readArchiveMirror,mirrorSavedArchives} from './archive-store.mjs';
 import {scoreFromObservations,loadObservations,observedPrompt,refreshObservationCache} from './rarity.mjs';
-import {SITEMAP_PROMPT_MTIME_KEY,STATS_CACHE_TTL_MS,loadOrRefreshStatsCache,writeStatsCache} from './stats-cache.mjs';
+import {computeSitemapPromptMtimes as computeSitemapFromStore,recordCompletedRun} from './observations-store.mjs';
+import {SITEMAP_PROMPT_MTIME_KEY,STATS_CACHE_TTL_MS,loadOrRefreshStatsCache,useStatsCache,writeStatsCache} from './stats-cache.mjs';
 import {lastModified} from './content-updates.mjs';
 import {archivePage,todayHub,archiveIndex,validDate} from './answer-archives.mjs';
 import {promptPages,renderPromptPage,hydrateHomepage,breadcrumbs} from './prompt-pages.mjs';
@@ -21,22 +22,17 @@ function headers(response, additional = {}) {
   return new Response(response.body, { status: response.status, headers: h });
 }
 
-const SITEMAP_PROMPT_SQL=`SELECT json_extract(p.value,'$.id') AS id,MAX(a.created_at) AS updated
-          FROM answers a JOIN runs r ON r.id=a.run_id JOIN run_puzzles rp ON rp.run_id=r.id
-          JOIN json_each(rp.content,'$.prompts') p ON CAST(p.key AS INTEGER)=a.round
-          WHERE r.completed=1 GROUP BY json_extract(p.value,'$.id')`;
-async function computeSitemapPromptMtimes(env){
-  const rows=(await env.DB.prepare(SITEMAP_PROMPT_SQL).all()).results;
-  return rows.map(r=>[r.id,new Date(r.updated).toISOString()]);
+async function computeSitemapPromptMtimes(env,options){
+  return computeSitemapFromStore(env,options);
 }
 export async function refreshSitemapPromptMtimes(env){
-  const entries=await computeSitemapPromptMtimes(env);
+  const entries=await computeSitemapPromptMtimes(env,{allowSourceScan:true});
   await writeStatsCache(env,SITEMAP_PROMPT_MTIME_KEY,entries);
   return entries;
 }
 async function sitemapPromptMtimes(env){
   try{
-    return new Map(await loadOrRefreshStatsCache(env,SITEMAP_PROMPT_MTIME_KEY,()=>computeSitemapPromptMtimes(env),STATS_CACHE_TTL_MS));
+    return new Map(await loadOrRefreshStatsCache(env,SITEMAP_PROMPT_MTIME_KEY,()=>computeSitemapPromptMtimes(env,{allowSourceScan:!useStatsCache(env)}),STATS_CACHE_TTL_MS));
   }catch(error){
     console.error('sitemap prompt mtimes failed:',error.message);
     return new Map();
@@ -225,6 +221,10 @@ async function api(request, env, url) {
       env.DB.prepare('UPDATE runs SET next_round=?,round_start=NULL,completed=? WHERE id=? AND next_round=? AND EXISTS(SELECT 1 FROM answers WHERE run_id=? AND round=?)').bind(result.round+1,result.round===6?1:0,run.id,result.round,run.id,result.round),
     ]);
     const fresh = await state(env, await ownRun(env,run.id,player));
+    if(fresh.completed){
+      try{await recordCompletedRun(env,{player:run.player,puzzle,results:fresh.results,createdAt:now});}
+      catch(error){console.error('observation record failed:',error.message);}
+    }
     const accepted = fresh.results.find(r => r.round === result.round);
     return json({ result: { ...result, ...accepted }, state: fresh });
   }
