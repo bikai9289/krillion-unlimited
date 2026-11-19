@@ -26,6 +26,7 @@ function database(){
     },
     async first(){return db.prepare(sql).get()||null},
     async all(){return {results:db.prepare(sql).all()}},
+    async run(){const r=db.prepare(sql).run();return {success:true,meta:{changes:Number(r.changes)}}},
   });
   return{prepare,async batch(statements){db.exec('BEGIN');try{const r=[];for(const s of statements)r.push(await s.run());db.exec('COMMIT');return r}catch(e){db.exec('ROLLBACK');throw e}},close:()=>db.close()};
 }
@@ -473,7 +474,8 @@ test('every published prompt has category, sibling and prompts-index inbound pat
 
 
 test('production caches keep observation and sitemap aggregates across source-table deletes',async()=>{
- const {loadObservations}=await import('../src/rarity.mjs');
+ const {loadObservations,refreshObservationCache}=await import('../src/rarity.mjs');
+ const {refreshSitemapPromptMtimes}=await import('../src/worker.mjs');
  const app=service();
  app.env.LOCAL_DEVELOPMENT='false';
  const p=PRACTICE_BANK[0];
@@ -481,6 +483,8 @@ test('production caches keep observation and sitemap aggregates across source-ta
  await app.env.DB.prepare('INSERT INTO runs(id,player,date,mode,round_start,created_at,completed) VALUES(?,?,?,?,?,?,?)').bind(id,player,etDate(),'practice',null,Date.now(),1).run();
  await app.env.DB.prepare('INSERT INTO run_puzzles(run_id,content) VALUES(?,?)').bind(id,JSON.stringify({prompts:Array.from({length:7},()=>p)})).run();
  await app.env.DB.prepare('INSERT INTO answers(run_id,round,raw_answer,answer,tier,score,created_at) VALUES(?,?,?,?,?,?,?)').bind(id,0,p.answers[0].answer,p.answers[0].answer,p.answers[0].tier,TIERS[p.answers[0].tier].score,Date.now()).run();
+ await refreshObservationCache(app.env);
+ await refreshSitemapPromptMtimes(app.env);
  const first=await loadObservations(app.env);
  assert.equal(first.filter(r=>r.promptId===p.id).reduce((n,r)=>n+Number(r.count),0),1);
  const sitemap=await worker.fetch(new Request('https://krillion-unlimited.app/sitemap.xml'),app.env,{});
@@ -490,6 +494,8 @@ test('production caches keep observation and sitemap aggregates across source-ta
  await app.env.DB.prepare('DELETE FROM answers').bind().run();
  await app.env.DB.prepare('DELETE FROM run_puzzles').bind().run();
  await app.env.DB.prepare('DELETE FROM runs').bind().run();
+ await app.env.DB.prepare('DELETE FROM prompt_observations').bind().run();
+ await app.env.DB.prepare('DELETE FROM prompt_mtimes').bind().run();
  const cached=await loadObservations(app.env);
  assert.equal(cached.filter(r=>r.promptId===p.id).reduce((n,r)=>n+Number(r.count),0),1);
  const cachedMap=await worker.fetch(new Request('https://krillion-unlimited.app/sitemap.xml'),app.env,{});
@@ -500,6 +506,31 @@ test('production caches keep observation and sitemap aggregates across source-ta
  assert.equal(empty.length,0);
  dev.env.DB.close();
  app.env.DB.close();
+});
+
+test('completed dives materialize observations so later loads skip JSON table scans',async()=>{
+ const {loadObservations}=await import('../src/rarity.mjs');
+ const app=service();
+ const started=await app.call('/api/start',{practice:true,ready:true});
+ const prompt=PRACTICE_BANK.find(p=>p.id===started.body.prompts[0].id);
+ await app.env.DB.prepare('UPDATE run_puzzles SET content=? WHERE run_id=?').bind(JSON.stringify({date:started.body.date,prompts:Array.from({length:7},()=>prompt)}),started.body.runId).run();
+ for(let i=0;i<7;i++){
+  await app.call('/api/next',{runId:started.body.runId});
+  await app.call('/api/answer',{runId:started.body.runId,round:i,answer:prompt.answers[0].answer,confirm:true});
+ }
+ const player=(await app.env.DB.prepare('SELECT player FROM runs WHERE id=?').bind(started.body.runId).first()).player;
+ const stored=await app.env.DB.prepare('SELECT COUNT(*) AS n FROM prompt_observations WHERE player=? AND prompt_id=?').bind(player,prompt.id).first();
+ assert.equal(stored.n,1);
+ app.env.LOCAL_DEVELOPMENT='false';
+ const db=app.env.DB;let scans=0;
+ app.env.DB={...db,prepare(sql){if(/json_each|WITH candidates/i.test(sql))scans++;return db.prepare(sql);}};
+ const rows=await loadObservations(app.env);
+ assert.equal(rows.filter(r=>r.promptId===prompt.id).reduce((n,r)=>n+Number(r.count),0),1);
+ await loadObservations(app.env);
+ const sitemap=await worker.fetch(new Request('http://localhost:3051/sitemap.xml'),app.env,{});
+ assert.equal(sitemap.status,200);
+ assert.equal(scans,0);
+ app.env.DB=db;db.close();
 });
 
 test('saved answer editions survive total D1 outage without fabricating missing history',async()=>{
