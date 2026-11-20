@@ -48,8 +48,42 @@ Compared with the downloaded current production bundle, the release changes
 only the existing `todayContent` function and the `PROMPT_GUIDES` and
 `promptPages` declarations, adding the hint lookup module. All other existing
 function bodies and declarations match. Existing detailed guides are unchanged.
-Current production settings and hourly cron are retained, and the live asset
-collection is inherited. No database migration is part of this content release.
+Current production settings and hourly cron are retained. No database migration
+is part of this content release.
 
 Before deployment the scoped package passed desktop/mobile full-game, content,
 and archive-hint browser acceptance. Post-deployment status is recorded separately.
+
+## Production acceptance
+
+Code commit: `b82bb654f9da890c38d68da4c5d92a47001e24ab` (pushed to main).
+Final Worker version: `7ae6a249-3699-4f33-9c44-ebb9ef64d93a`, 100% traffic.
+
+An initial asset-preserving deployment exposed stale production rules HTML:
+the fixed-scoring explanation differed from the repository and actual scoring.
+The final deployment therefore publishes the same commit's rebuilt static
+collection as well. The complete content audit then passes, including rules
+consistency; routes and titles are unchanged.
+
+- Downloaded final Worker matches the release build's parsed JavaScript.
+- Homepage, health, matching guide, rules, calendar/science/geography categories
+  and sitemap return 200. Health reports database and storage available.
+- Sitemap contains 147 URLs; www redirects 301 to the canonical apex.
+- 106 prompt pages and nine detailed guides pass the live/static comparison,
+  matcher checks, canonical checks and 1440px/390px layout checks.
+- All 20 currently published archive dates pass seven distinct hints,
+  closed/revealable answers, canonical and mobile-layout checks.
+- Final live full-game browser acceptance passes seven server-scored rounds,
+  invalid input, pause/resume, reload, pass, review, share, repeat play and mobile
+  with zero page errors.
+
+Evidence in this release worktree: `output/content-release-1120/final-content/`
+and `output/playwright/production-ui/` (the game's existing fixed output path).
+Archive evidence is in the original publish directory under
+`output/release-1120/final-hints/`. Private deployment/source checks remain in
+the original development directory's ignored `.wrangler/` tree.
+
+November 21 has not occurred in New York at acceptance time: its generated
+snapshot regression passed, but natural production rollover remains unverified.
+No AdSense review was submitted. Unrelated dirty files in the existing publish
+directory were preserved; generated build artifacts were excluded from commits.
