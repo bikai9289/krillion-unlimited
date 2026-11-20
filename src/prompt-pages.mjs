@@ -6,7 +6,7 @@ import { TIERS } from '../public/rules.mjs';
 import { categories, ORIGIN, escapeHTML as esc, siteNavigation, siteFooter, documentHead } from './site-content.mjs';
 
 export const promptSlug = p => p.text.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-export const promptPages = PRACTICE_BANK.filter(p=>published.includes(p.id)).map(prompt=>({prompt,modified:'2026-11-18',path:`/prompts/${promptSlug(prompt)}/`,h1:prompt.text,title:prompt.id==='practice-6'?'Name an Ocean — Five Accepted Answers & Practice':`${prompt.text} — Answer Guide | Krillion Unlimited`,description:`Accepted answer scope, prepared rarity tiers and examples for “${prompt.text}” in our independent question bank.`}));
+export const promptPages = PRACTICE_BANK.filter(p=>published.includes(p.id)).map(prompt=>({prompt,modified:['practice-2','practice-8','practice-14'].includes(prompt.id)?'2026-11-20':'2026-11-18',path:`/prompts/${promptSlug(prompt)}/`,h1:prompt.text,title:prompt.id==='practice-6'?'Name an Ocean — Five Accepted Answers & Practice':`${prompt.text} — Answer Guide | Krillion Unlimited`,description:`Accepted answer scope, prepared rarity tiers and examples for “${prompt.text}” in our independent question bank.`}));
 export function categoryRecord(prompt){
  return categories.find(c=>c.ids.includes(prompt.id))||null;
 }

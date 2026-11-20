@@ -1,5 +1,44 @@
 // Notes describe this site's accepted sets, not measured player behaviour.
 export const PROMPT_GUIDES = {
+  'practice-2': {
+    scope: 'Name a Gregorian-calendar month with exactly 30 days: April, June, September or November. A month that merely contains a thirtieth day is not enough.',
+    heading: 'Thirty days means the whole month',
+    paragraphs: [
+      'April, June, September and November have the same length in leap years and ordinary years. February is the month affected by the extra leap day, so no leap-year calculation is needed for this question.',
+      'Use one full English month name from the list. Abbreviations such as Sep are not stored aliases. These four editorial tiers are prepared game settings, not evidence that one month is less widely known than another.',
+    ],
+    examples: [
+      ['January', 'It contains a January 30, but the complete month has 31 days.'],
+      ['February', 'It has 28 days, or 29 in a leap year; neither length meets the condition.'],
+      ['Summer', 'A season rather than a month; seasons also depend on hemisphere.'],
+    ],
+  },
+  'practice-8': {
+    scope: 'Name one of the five Great Lakes of North America: Superior, Michigan, Huron, Erie or Ontario. This is a named geographic group, not a request for any large lake.',
+    heading: 'Lake names and geographic boundaries',
+    paragraphs: [
+      'Every entry also accepts its full Lake name, such as Lake Michigan or Lake Erie. Ontario alone is accepted for this prompt even though the same word can name a Canadian province; the question supplies the lake context.',
+      'Michigan and Huron are listed separately in this bank, despite their hydrological connection. Answer with one displayed lake name. A combined Michigan-Huron response is not a stored entry or alias.',
+    ],
+    examples: [
+      ['Lake Winnipeg', 'A real Canadian lake, but outside the five-lake Great Lakes group used here.'],
+      ['Great Salt Lake', 'The word Great in its name does not make this Utah lake part of the group.'],
+      ['St. Lawrence River', 'Connected to the Great Lakes system, but a river rather than one of the five lakes.'],
+    ],
+  },
+  'practice-14': {
+    scope: 'Name an SI base unit: metre, kilogram, second, ampere, kelvin, mole or candela. The prompt asks for a unit name, rather than a measured quantity or a unit symbol.',
+    heading: 'Base units versus derived units',
+    paragraphs: [
+      'Metre also accepts the spelling meter. Other entries use the names displayed below; symbols such as kg and K are not stored aliases. Capitalization is normalized, so Kelvin and kelvin identify the same prepared entry.',
+      'Mass uses kilogram as its base unit, not gram. Temperature uses kelvin here, not degrees Celsius. Newton, joule and volt are useful SI units, but they are derived units and do not belong to this seven-entry list.',
+    ],
+    examples: [
+      ['Gram', 'A mass unit, but the SI base unit for mass in this question is kilogram.'],
+      ['Newton', 'A derived force unit rather than one of the seven base units.'],
+      ['Length', 'A physical quantity; metre is the corresponding unit name.'],
+    ],
+  },
   'practice-6': {
     scope: 'This prompt asks for one ocean name. Our accepted set is Pacific, Atlantic, Indian, Arctic and Southern. The question uses these five names separately; a sea, gulf or lake is a different answer type.',
     heading: 'Ocean names and full-name aliases',
